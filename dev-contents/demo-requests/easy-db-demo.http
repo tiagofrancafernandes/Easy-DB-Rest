@@ -1,0 +1,79 @@
+@baseUrl = http://localhost:8000/api
+@connectionId = 1
+
+### 1. Create a Connection
+POST {{baseUrl}}/connections
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "SQLite Testing",
+    "driver": "sqlite",
+    "database": "/absolute/path/to/database.sqlite"
+}
+
+### 2. List Connections
+GET {{baseUrl}}/connections
+Accept: application/json
+
+### 3. Test Connection via Runtime Config
+POST {{baseUrl}}/connection/test
+Content-Type: application/json
+Accept: application/json
+
+{
+    "connection": {
+        "driver": "sqlite",
+        "database": "/absolute/path/to/database.sqlite"
+    }
+}
+
+### 4. Execute Raw Query (Runtime Config)
+POST {{baseUrl}}/query
+Content-Type: application/json
+Accept: application/json
+
+{
+    "type": "raw",
+    "query": "SELECT * FROM sqlite_master LIMIT 5",
+    "connection": {
+        "driver": "sqlite",
+        "database": "/absolute/path/to/database.sqlite"
+    }
+}
+
+### 5. Execute Raw Query (Header Config)
+POST {{baseUrl}}/query
+Content-Type: text/x-sql
+Accept: application/json
+X-Config-ID: {{connectionId}}
+
+SELECT * FROM sqlite_master LIMIT 5;
+
+### 6. Execute Builder Query (Runtime Config)
+POST {{baseUrl}}/query
+Content-Type: application/json
+Accept: application/json
+
+{
+    "type": "select",
+    "table": "sqlite_master",
+    "query": [
+        {
+            "method": "select",
+            "args": ["name", "type"]
+        },
+        {
+            "method": "limit",
+            "args": [10]
+        }
+    ],
+    "connection": {
+        "driver": "sqlite",
+        "database": "/absolute/path/to/database.sqlite"
+    }
+}
+
+### 7. Delete Connection
+DELETE {{baseUrl}}/connections/{{connectionId}}
+Accept: application/json
