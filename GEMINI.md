@@ -8,6 +8,9 @@ The API supports:
 - **Declarative Query Builder** via JSON payloads, allowing safe and structured data retrieval without writing raw SQL.
 - **Dynamic Connections**, accepting connection parameters per-request or via UUID references (e.g., `X-Config-ID` header).
 
+## Examples
+Examples of HTTP requests and code snippets (cURL, PHP, JavaScript) are available in the `examples/` folder. Please refer to them when generating code that consumes this API.
+
 ## AI Behavior & Limitations
 - **Be Concise**: Provide direct answers without unnecessary explanations, pleasantries, or conclusions.
 - **Strict Execution**: Do exactly what is requested without altering unrelated code or making assumptions.
