@@ -1,0 +1,10 @@
+### My POST request description
+POST http://127.0.0.1/api/sql/query
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer Token-Auth-Usuario-API
+
+{
+        "chave": "valor",
+        "chave2": "valor"
+}

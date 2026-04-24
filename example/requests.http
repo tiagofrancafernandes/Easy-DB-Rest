@@ -1,0 +1,134 @@
+@baseUrl = http://localhost:8000/api
+@token = Bearer Your-Auth-Token-Here
+@connectionId = 1
+
+### --------------------------------------------------------
+### 1. CONNECTION MANAGEMENT
+### --------------------------------------------------------
+
+### Create a new Persistent Connection
+POST {{baseUrl}}/connections
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "name": "Production Database",
+    "driver": "mysql",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "prod_db",
+    "username": "root",
+    "password": "secret_password"
+}
+
+### List All Connections
+GET {{baseUrl}}/connections
+Accept: application/json
+Authorization: {{token}}
+
+### Test an Ad-hoc (Runtime) Connection
+POST {{baseUrl}}/connection/test
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "connection": {
+        "driver": "sqlite",
+        "database": "/absolute/path/to/database.sqlite"
+    }
+}
+
+
+### --------------------------------------------------------
+### 2. RAW SQL EXECUTION
+### --------------------------------------------------------
+
+### Execute Raw SQL using Runtime Connection Config
+POST {{baseUrl}}/query
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "type": "raw",
+    "query": "SELECT * FROM users WHERE active = 1 LIMIT 10",
+    "connection": {
+        "driver": "sqlite",
+        "database": "/absolute/path/to/database.sqlite"
+    }
+}
+
+### Execute Raw SQL using Persisted Connection (via Header)
+# Use Content-Type: text/x-sql to send SQL directly in the body
+POST {{baseUrl}}/query
+Accept: application/json
+Content-Type: text/x-sql
+Authorization: {{token}}
+X-Config-ID: {{connectionId}}
+
+SELECT id, name, email 
+FROM users 
+ORDER BY created_at DESC 
+LIMIT 5;
+
+
+### --------------------------------------------------------
+### 3. QUERY BUILDER EXECUTION (Declarative)
+### --------------------------------------------------------
+
+### Execute Query Builder via Runtime Config
+POST {{baseUrl}}/query
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "type": "select",
+    "table": "orders",
+    "query": [
+        {
+            "method": "select",
+            "args": ["id", "product_id", "total", "created_at"]
+        },
+        {
+            "method": "where",
+            "args": ["total", ">", 100]
+        },
+        {
+            "method": "orderByDesc",
+            "args": ["created_at"]
+        },
+        {
+            "method": "limit",
+            "args": [10]
+        }
+    ],
+    "connection": {
+        "driver": "sqlite",
+        "database": "/absolute/path/to/database.sqlite"
+    }
+}
+
+### Execute Query Builder using Persisted Connection (via Header)
+POST {{baseUrl}}/query
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+X-Config-ID: {{connectionId}}
+
+{
+    "type": "select",
+    "table": "products",
+    "query": [
+        {
+            "method": "where",
+            "args": ["stock", "<", 5]
+        },
+        {
+            "method": "where",
+            "args": ["active", "=", 1]
+        }
+    ]
+}

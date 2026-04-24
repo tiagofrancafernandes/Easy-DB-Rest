@@ -1,0 +1,166 @@
+# Easy DB Rest - Integration Examples
+
+This document provides examples of how to interact with the **Easy DB Rest API** from various environments and languages.
+
+---
+
+## 1. Using cURL
+
+### Execute a Raw SQL Query (Runtime Configuration)
+```bash
+curl -X POST http://127.0.0.1:8000/api/query \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer Your-Auth-Token-Here" \
+  -d '{
+    "type": "raw",
+    "query": "SELECT * FROM users WHERE active = 1 LIMIT 10",
+    "connection": {
+        "driver": "sqlite",
+        "database": "/path/to/database.sqlite"
+    }
+  }'
+```
+
+### Execute a Declarative Query Builder (Persisted Configuration)
+```bash
+curl -X POST http://127.0.0.1:8000/api/query \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer Your-Auth-Token-Here" \
+  -H "X-Config-ID: 1" \
+  -d '{
+    "type": "select",
+    "table": "orders",
+    "query": [
+        {
+            "method": "where",
+            "args": ["total", ">", 100]
+        },
+        {
+            "method": "limit",
+            "args": [5]
+        }
+    ]
+  }'
+```
+
+### Execute Raw SQL in Body (Text/SQL)
+```bash
+curl -X POST http://127.0.0.1:8000/api/query \
+  -H "Accept: application/json" \
+  -H "Content-Type: text/x-sql" \
+  -H "Authorization: Bearer Your-Auth-Token-Here" \
+  -H "X-Config-ID: 1" \
+  -d 'SELECT id, name FROM products ORDER BY name ASC LIMIT 5;'
+```
+
+---
+
+## 2. Using JavaScript (Fetch API)
+
+### Execute a Query Builder
+```javascript
+async function fetchTopOrders() {
+  const payload = {
+    type: "select",
+    table: "orders",
+    query: [
+      { method: "select", args: ["id", "total"] },
+      { method: "orderByDesc", args: ["total"] },
+      { method: "limit", args: [10] }
+    ]
+  };
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/query', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer Your-Auth-Token-Here',
+        'X-Config-ID': '1' // Using persisted connection ID 1
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    console.log("Top Orders:", result.data);
+  } catch (error) {
+    console.error("Error executing query:", error);
+  }
+}
+
+fetchTopOrders();
+```
+
+---
+
+## 3. Using PHP (GuzzleHTTP)
+
+### Execute Raw SQL (Runtime Configuration)
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+
+$client = new Client([
+    'base_uri' => 'http://127.0.0.1:8000/api/',
+    'timeout'  => 10.0,
+]);
+
+try {
+    $response = $client->post('query', [
+        'headers' => [
+            'Accept'        => 'application/json',
+            'Authorization' => 'Bearer Your-Auth-Token-Here',
+        ],
+        'json' => [
+            'type' => 'raw',
+            'query' => 'SELECT id, email FROM users LIMIT 3',
+            'connection' => [
+                'driver'   => 'mysql',
+                'host'     => '127.0.0.1',
+                'port'     => 3306,
+                'database' => 'forge',
+                'username' => 'forge',
+                'password' => 'secret'
+            ]
+        ]
+    ]);
+
+    $data = json_decode($response->getBody()->getContents(), true);
+    print_r($data['data']);
+
+} catch (RequestException $e) {
+    echo "Request failed: " . $e->getMessage();
+}
+```
+
+### Send Raw SQL using `text/x-sql` Header
+```php
+<?php
+
+// Reusing $client from above
+
+try {
+    $response = $client->post('query', [
+        'headers' => [
+            'Accept'        => 'application/json',
+            'Content-Type'  => 'text/x-sql',
+            'Authorization' => 'Bearer Your-Auth-Token-Here',
+            'X-Config-ID'   => '1', // The ID of the configured connection
+        ],
+        'body' => 'SELECT name, price FROM products WHERE active = 1 ORDER BY price DESC LIMIT 5;'
+    ]);
+
+    $data = json_decode($response->getBody()->getContents(), true);
+    print_r($data['data']);
+
+} catch (RequestException $e) {
+    echo "Request failed: " . $e->getMessage();
+}
+```
