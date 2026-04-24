@@ -142,6 +142,10 @@ POST /api/query/raw                # Execute raw SQL
 POST /api/query/builder            # Execute builder query
 ```
 
+## Examples
+
+Examples of HTTP requests and code snippets (cURL, PHP, JavaScript) for API integration are available in the `examples/` directory. Refer to these files when asked to generate client-side requests to the API.
+
 ## Testing Strategy
 
 **Test Organization:**
