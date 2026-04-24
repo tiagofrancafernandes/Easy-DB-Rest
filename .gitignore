@@ -9,7 +9,7 @@
 /.idea
 /.nova
 /.phpunit.cache
-/.vscode
+# /.vscode
 /.zed
 /auth.json
 /node_modules
@@ -22,3 +22,18 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+*no*commit*
+# *No*Commit*
+*NoCommit*.*
+*NO*COMMIT*
+*.bak
+*.bkp.*
+*.bkp
+*.log
+*.swp
+*.out
+*.zip
+*.del
+_ide_helper*
+
+*digest*.txt
