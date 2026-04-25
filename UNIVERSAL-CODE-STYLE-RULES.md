@@ -1,5 +1,5 @@
 # Universal Code Style Rules
-Version: 1.3
+Version: 1.4
 
 Audience: Humans & AI Code Assistants
 Scope: Language-agnostic (C-like syntax used for examples)
@@ -524,6 +524,29 @@ Use when it improves clarity:
 
 * Prefer unit tests
 * Use mocks/stubs
+
+---
+
+### 14.14 Property Visibility
+
+* Prefer `protected` over `private` for class properties.
+* Use `private` only when strictly necessary for encapsulation that must not be overridden.
+
+---
+
+### 14.15 Static References
+
+* Always use `static::` instead of `self::` for internal static references.
+* Use `self::` only when the reference strictly REQUIRES the current class definition (preventing late static binding), which is rare.
+* This ensures better support for inheritance and late static binding.
+
+---
+
+### 14.16 Return Type Hints
+
+* When a method returns an instance of the class (or a child class), use `static` as the return type hint instead of `self`.
+* This applies to PHP 8.0+ environments.
+* Example: `public function getInstance(): static`
 
 ---
 
