@@ -8,18 +8,18 @@ use RuntimeException;
 
 class ConnectionException extends RuntimeException
 {
-    public static function driverNotAllowed(string $driver): self
+    public static function driverNotAllowed(string $driver): static
     {
-        return new self("Driver '{$driver}' is not in the allowed drivers list.", 422);
+        return new static("Driver '{$driver}' is not in the allowed drivers list.", 422);
     }
 
-    public static function connectionFailed(string $reason): self
+    public static function connectionFailed(string $reason): static
     {
-        return new self("Failed to establish database connection: {$reason}", 503);
+        return new static("Failed to establish database connection: {$reason}", 503);
     }
 
-    public static function configNotFound(string $id): self
+    public static function configNotFound(string $id): static
     {
-        return new self("Connection configuration '{$id}' not found.", 404);
+        return new static("Connection configuration '{$id}' not found.", 404);
     }
 }

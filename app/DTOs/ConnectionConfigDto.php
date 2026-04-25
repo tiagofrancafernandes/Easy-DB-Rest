@@ -28,9 +28,9 @@ final class ConnectionConfigDto
     ) {
     }
 
-    public static function fromModel(Connection $connection): self
+    public static function fromModel(Connection $connection): static
     {
-        return new self(
+        return new static(
             driver:      SupportedDriver::from($connection->driver),
             database:    $connection->database,
             host:        $connection->host,
@@ -52,7 +52,7 @@ final class ConnectionConfigDto
     /**
      * @param array<string, mixed> $data
      */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data): static
     {
         $driver = SupportedDriver::from($data['driver']);
 
@@ -60,7 +60,7 @@ final class ConnectionConfigDto
             ? base64_decode($data['password'], strict: true) ?: $data['password']
             : null;
 
-        return new self(
+        return new static(
             driver:      $driver,
             database:    $data['database'] ?? null,
             host:        $data['host'] ?? null,

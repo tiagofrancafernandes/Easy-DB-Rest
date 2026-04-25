@@ -25,9 +25,9 @@ final class QueryPayloadDto
     /**
      * @param array<string, mixed> $data
      */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data): static
     {
-        return new self(
+        return new static(
             type:     QueryType::from($data['type']),
             query:    $data['query'],
             bindings: $data['bindings'] ?? [],
@@ -36,9 +36,9 @@ final class QueryPayloadDto
         );
     }
 
-    public static function fromRawSql(string $sql): self
+    public static function fromRawSql(string $sql): static
     {
-        return new self(
+        return new static(
             type:  QueryType::Raw,
             query: $sql,
         );

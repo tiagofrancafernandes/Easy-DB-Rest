@@ -8,8 +8,8 @@ use RuntimeException;
 
 class QueryTimeoutException extends RuntimeException
 {
-    public static function exceeded(int $seconds): self
+    public static function exceeded(int $seconds): static
     {
-        return new self("Query exceeded the configured timeout of {$seconds} seconds.", 408);
+        return new static("Query exceeded the configured timeout of {$seconds} seconds.", 408);
     }
 }

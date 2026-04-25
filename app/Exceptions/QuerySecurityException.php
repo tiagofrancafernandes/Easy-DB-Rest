@@ -8,13 +8,13 @@ use RuntimeException;
 
 class QuerySecurityException extends RuntimeException
 {
-    public static function blockedStatement(string $statement): self
+    public static function blockedStatement(string $statement): static
     {
-        return new self("Statement '{$statement}' is blocked by the security policy.", 422);
+        return new static("Statement '{$statement}' is blocked by the security policy.", 422);
     }
 
-    public static function forbiddenBuilderMethod(string $method): self
+    public static function forbiddenBuilderMethod(string $method): static
     {
-        return new self("Builder method '{$method}' is not in the allowed methods list.", 422);
+        return new static("Builder method '{$method}' is not in the allowed methods list.", 422);
     }
 }

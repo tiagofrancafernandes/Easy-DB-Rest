@@ -2,10 +2,24 @@
 @token = Bearer Your-Auth-Token-Here
 @connectionId = 1
 
+##########################################################
 ### --------------------------------------------------------
 ### 1. CONNECTION MANAGEMENT
 ### --------------------------------------------------------
 
+##########################################################
+### List All Connections
+GET {{baseUrl}}/connections
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Get Connection Info
+GET {{baseUrl}}/connections/{{connectionId}}
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
 ### Create a new MySQL Connection (Advanced)
 POST {{baseUrl}}/connections
 Accept: application/json
@@ -19,12 +33,33 @@ Authorization: {{token}}
     "port": 3307,
     "database": "ecommerce_metrics",
     "username": "analytics_user",
-    "password": "secure_password",
+    "password": "secure_password_in_base64",
     "charset": "utf8mb4",
     "collation": "utf8mb4_unicode_ci",
     "tags": ["production", "analytics", "mysql"]
 }
 
+##########################################################
+### Create a PostgreSQL Connection
+POST {{baseUrl}}/connections
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "name": "E-Commerce Stats DB",
+    "driver": "pgsql",
+    "host": "db.production.local",
+    "port": 5432,
+    "database": "ecommerce_metrics",
+    "username": "analytics_user",
+    "password": "secure_password_in_base64",
+    "search_path": "analytics,public",
+    "sslmode": "require",
+    "tags": ["production", "analytics", "pgsql"]
+}
+
+##########################################################
 ### Create a PostgreSQL Connection via URL with Search Path
 POST {{baseUrl}}/connections
 Accept: application/json
@@ -40,6 +75,7 @@ Authorization: {{token}}
     "tags": ["dw", "reporting", "pgsql"]
 }
 
+##########################################################
 ### Update Connection (Change port and add tags)
 PUT {{baseUrl}}/connections/{{connectionId}}
 Accept: application/json
@@ -51,17 +87,33 @@ Authorization: {{token}}
     "tags": ["updated", "mysql"]
 }
 
+##########################################################
+### Test an Ad-hoc (Runtime) Connection using connectionId via Header
+POST {{baseUrl}}/connection/test
+Accept: application/json
+Content-Type: application/json
+X-Config-ID: {{connectionId}}
+Authorization: {{token}}
+
+##########################################################
+### Test an Ad-hoc (Runtime) Connection using connectionId via Body
+POST {{baseUrl}}/connection/test
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "config_id": "{{connectionId}}"
+}
+
+##########################################################
 ### Delete Connection
 DELETE {{baseUrl}}/connections/{{connectionId}}
 Accept: application/json
 Authorization: {{token}}
 
-### List All Connections
-GET {{baseUrl}}/connections
-Accept: application/json
-Authorization: {{token}}
-
-### Test an Ad-hoc (Runtime) Connection
+##########################################################
+### Test an Ad-hoc (Runtime) Connection INLINE
 POST {{baseUrl}}/connection/test
 Accept: application/json
 Content-Type: application/json
@@ -69,20 +121,44 @@ Authorization: {{token}}
 
 {
     "connection": {
-        "driver": "sqlite",
-        "database": "/absolute/path/to/database.sqlite"
+        "driver": "pgsql",
+        "host": "172.17.0.1",
+        "port": "1010",
+        "database": "postgres",
+        "username": "postgres",
+        "password": "cG9zdGdyZXM=",
+        "search_path": "public",
+        "sslmode": "prefer"
     }
 }
 
+##########################################################
+### Test an Ad-hoc (Runtime) Connection INLINE (URL)
+POST {{baseUrl}}/connection/test
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
 
+{
+    "connection": {
+        "driver": "pgsql",
+        "url": "postgresql://postgres:postgres@172.17.0.1:1010/postgres",
+        "search_path": "analytics,public",
+        "sslmode": "prefer"
+    }
+}
+
+##########################################################
 ### --------------------------------------------------------
 ### 2. RAW SQL EXECUTION
 ### --------------------------------------------------------
 
+##########################################################
 ### Execute Raw SQL using Runtime Connection Config
 POST {{baseUrl}}/query
 Accept: application/json
 Content-Type: application/json
+X-Config-ID: {{connectionId}}
 Authorization: {{token}}
 
 {
@@ -94,6 +170,7 @@ Authorization: {{token}}
     }
 }
 
+##########################################################
 ### Execute Raw SQL using Persisted Connection (via Header)
 # Use Content-Type: text/x-sql to send SQL directly in the body
 POST {{baseUrl}}/query
@@ -102,16 +179,18 @@ Content-Type: text/x-sql
 Authorization: {{token}}
 X-Config-ID: {{connectionId}}
 
-SELECT id, name, email 
-FROM users 
-ORDER BY created_at DESC 
+SELECT id, name, email
+FROM users
+ORDER BY created_at DESC
 LIMIT 5;
 
 
+##########################################################
 ### --------------------------------------------------------
 ### 3. QUERY BUILDER EXECUTION (Declarative)
 ### --------------------------------------------------------
 
+##########################################################
 ### Execute Query Builder via Runtime Config
 POST {{baseUrl}}/query
 Accept: application/json
@@ -145,6 +224,7 @@ Authorization: {{token}}
     }
 }
 
+##########################################################
 ### Execute Query Builder using Persisted Connection (via Header)
 POST {{baseUrl}}/query
 Accept: application/json

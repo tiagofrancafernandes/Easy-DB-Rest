@@ -170,7 +170,7 @@ class QueryController extends Controller
 
     private function isSqlContentType(string $contentType): bool
     {
-        foreach (self::SQL_CONTENT_TYPES as $type) {
+        foreach (static::SQL_CONTENT_TYPES as $type) {
             if (str_starts_with($contentType, $type)) {
                 return true;
             }

@@ -14,10 +14,10 @@ enum SupportedDriver: string
     public function defaultPort(): ?int
     {
         return match ($this) {
-            self::Pgsql  => 5432,
-            self::Mysql  => 3306,
-            self::Sqlsrv => 1433,
-            self::Sqlite => null,
+            static::Pgsql  => 5432,
+            static::Mysql  => 3306,
+            static::Sqlsrv => 1433,
+            static::Sqlite => null,
         };
     }
 }

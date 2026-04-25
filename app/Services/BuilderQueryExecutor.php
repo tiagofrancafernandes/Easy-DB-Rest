@@ -69,7 +69,7 @@ class BuilderQueryExecutor
         $method = (string) ($executeDirective['method'] ?? $executeDirective[0] ?? 'get');
         $args   = (array) ($executeDirective['args'] ?? $executeDirective[1] ?? []);
 
-        if (!in_array($method, self::TERMINAL_METHODS, strict: true)) {
+        if (!in_array($method, static::TERMINAL_METHODS, strict: true)) {
             return $builder->get()->toArray();
         }
 
