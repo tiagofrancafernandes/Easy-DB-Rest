@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class SmokeTestSeeder extends Seeder
 {
-    public function run(): void
+    public function run(?string $connection = null): void
     {
-        DB::statement('CREATE TABLE IF NOT EXISTS products (
+        $db = DB::connection($connection);
+
+        $db->statement('CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             price REAL NOT NULL,
@@ -20,7 +22,7 @@ class SmokeTestSeeder extends Seeder
             created_at TEXT DEFAULT (datetime(\'now\'))
         )');
 
-        DB::table('products')->insertOrIgnore([
+        $db->table('products')->insertOrIgnore([
             ['name' => 'Widget A', 'price' => 9.99, 'stock' => 100, 'active' => 1],
             ['name' => 'Widget B', 'price' => 19.99, 'stock' => 50, 'active' => 1],
             ['name' => 'Gadget Pro', 'price' => 49.99, 'stock' => 25, 'active' => 1],
@@ -28,7 +30,7 @@ class SmokeTestSeeder extends Seeder
             ['name' => 'Deluxe Kit', 'price' => 99.99, 'stock' => 10, 'active' => 1],
         ]);
 
-        DB::statement('CREATE TABLE IF NOT EXISTS orders (
+        $db->statement('CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL,
@@ -37,7 +39,7 @@ class SmokeTestSeeder extends Seeder
             FOREIGN KEY (product_id) REFERENCES products(id)
         )');
 
-        DB::table('orders')->insertOrIgnore([
+        $db->table('orders')->insertOrIgnore([
             ['product_id' => 1, 'quantity' => 3, 'total' => 29.97],
             ['product_id' => 2, 'quantity' => 1, 'total' => 19.99],
             ['product_id' => 3, 'quantity' => 2, 'total' => 99.98],

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Connection;
+use App\Models\User;
 use Database\Seeders\SmokeTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -18,8 +20,24 @@ class QueryExecutionTest extends TestCase
     {
         parent::setUp();
 
-        // Seed the testing DB so we have tables to query
-        $this->seed(SmokeTestSeeder::class);
+        $dbPath = database_path('database.sqlite');
+
+        if (file_exists($dbPath)) {
+            unlink($dbPath);
+        }
+        touch($dbPath);
+
+        // Seed the file database specifically
+        config(['database.connections.sqlite_file' => [
+            'driver' => 'sqlite',
+            'database' => $dbPath,
+            'prefix' => '',
+        ]]);
+
+        $seeder = new SmokeTestSeeder();
+        $seeder->run('sqlite_file');
+
+        Sanctum::actingAs(User::factory()->create());
     }
 
     protected function getRuntimeConfig(): array
@@ -130,7 +148,9 @@ class QueryExecutionTest extends TestCase
     #[Test]
     public function itUsesPersistedConfigFromHeader(): void
     {
+        $user = User::first();
         $connection = Connection::factory()->create([
+            'user_id' => $user->id,
             'driver' => 'sqlite',
             'database' => database_path('database.sqlite'),
         ]);

@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:8000/api
+@token = YOUR_TOKEN_HERE
+@snippetId = YOUR_SNIPPET_ID_HERE
+@teamId = YOUR_TEAM_ID_HERE
+
+### List Snippets
+GET {{baseUrl}}/snippets
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Create Snippet
+POST {{baseUrl}}/snippets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "my-sql/query.sql",
+    "content": "SELECT * FROM users WHERE active = 1;",
+    "public_content_slug": "active-users-sql",
+    "public_content_password": "mypassword",
+    "public_content_index": false,
+    "tags": ["sql", "reports"]
+}
+
+### Public View (JSON)
+GET {{baseUrl}}/snippets/1/active-users-sql?password=mypassword
+Accept: application/json
+
+### Public View (Plain Text)
+GET {{baseUrl}}/snippets/1/active-users-sql?password=mypassword&text
+Accept: text/plain
+
+### Share Snippet with Team
+POST {{baseUrl}}/snippets/{{snippetId}}/share
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "team_id": "{{teamId}}",
+    "permission": "edit"
+}

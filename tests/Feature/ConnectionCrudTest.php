@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Connection;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -25,7 +27,11 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itListsAllConnections(): void
     {
-        Connection::factory()->count(3)->create();
+        $user = User::factory()->create();
+        Connection::factory()->count(3)->create(['user_id' => $user->id]);
+        Connection::factory()->count(2)->create(); // Other users
+
+        Sanctum::actingAs($user);
 
         $response = $this->getJson('/api/connections');
 
@@ -36,6 +42,9 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itCreatesAConnection(): void
     {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
         $response = $this->postJson('/api/connections', $this->sqlitePayload());
 
         $response->assertCreated()
@@ -43,12 +52,17 @@ class ConnectionCrudTest extends TestCase
             ->assertJsonPath('data.driver', 'sqlite')
             ->assertJsonMissing(['password']);
 
-        $this->assertDatabaseHas('connections', ['name' => 'Test DB']);
+        $this->assertDatabaseHas('connections', [
+            'name' => 'Test DB',
+            'user_id' => $user->id,
+        ]);
     }
 
     #[Test]
     public function itRejectsAnInvalidDriver(): void
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $response = $this->postJson('/api/connections', [
             'name'     => 'Bad',
             'driver'   => 'oracle',
@@ -62,6 +76,8 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itRequiresNameAndDatabase(): void
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $response = $this->postJson('/api/connections', [
             'driver' => 'sqlite',
         ]);
@@ -73,7 +89,10 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itShowsASingleConnection(): void
     {
-        $connection = Connection::factory()->create(['name' => 'My Conn']);
+        $user = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $user->id, 'name' => 'My Conn']);
+
+        Sanctum::actingAs($user);
 
         $response = $this->getJson("/api/connections/{$connection->id}");
 
@@ -85,6 +104,8 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itReturns404ForNonExistentConnection(): void
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $response = $this->getJson('/api/connections/non-existent-uuid');
 
         $response->assertNotFound();
@@ -93,7 +114,10 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itUpdatesAConnection(): void
     {
-        $connection = Connection::factory()->create(['name' => 'Old Name']);
+        $user = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $user->id, 'name' => 'Old Name']);
+
+        Sanctum::actingAs($user);
 
         $response = $this->putJson("/api/connections/{$connection->id}", [
             'name' => 'New Name',
@@ -108,7 +132,10 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itDeletesAConnection(): void
     {
-        $connection = Connection::factory()->create();
+        $user = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $user->id]);
+
+        Sanctum::actingAs($user);
 
         $response = $this->deleteJson("/api/connections/{$connection->id}");
 
@@ -120,6 +147,8 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itNeverExposesPasswordInResponse(): void
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $payload           = $this->sqlitePayload();
         $payload['password'] = 'super-secret';
 
@@ -135,6 +164,8 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itCreatesAConnectionWithTags(): void
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $payload = $this->sqlitePayload('Tagged DB');
         $payload['tags'] = ['production', 'sqlite'];
 
@@ -148,6 +179,8 @@ class ConnectionCrudTest extends TestCase
     #[Test]
     public function itCreatesAConnectionViaUrlWithoutDatabaseField(): void
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $payload = [
             'name'   => 'URL DB',
             'driver' => 'pgsql',

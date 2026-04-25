@@ -60,6 +60,11 @@ use Spatie\Tags\HasTags;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Connection withAnyTagsOfAnyType($tags)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Connection withAnyTagsOfType(array|string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Connection withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @property int|null $user_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Team> $teams
+ * @property-read int|null $teams_count
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Connection whereUserId($value)
  * @mixin \Eloquent
  */
 class Connection extends Model
@@ -72,6 +77,7 @@ class Connection extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
         'name',
         'driver',
         'url',
@@ -109,5 +115,23 @@ class Connection extends Model
             'options' => 'array',
             'password' => 'encrypted',
         ];
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, $this>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Team, $this>
+     */
+    public function teams(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'connection_team')
+            ->withPivot('permission')
+            ->withTimestamps();
     }
 }

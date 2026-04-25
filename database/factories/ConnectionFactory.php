@@ -20,6 +20,7 @@ class ConnectionFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id'  => \App\Models\User::factory(),
             'name'     => $this->faker->words(2, asText: true),
             'driver'   => 'sqlite',
             'database' => database_path('database.sqlite'),

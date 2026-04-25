@@ -1,8 +1,11 @@
 @baseUrl = http://localhost:8000/api
+@token = YOUR_TOKEN_HERE
 @connectionId = 1
+@teamId = 1
 
 ### 1. Create a Connection
 POST {{baseUrl}}/connections
+Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
 
@@ -14,10 +17,12 @@ Accept: application/json
 
 ### 2. List Connections
 GET {{baseUrl}}/connections
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### 3. Test Connection via Runtime Config
 POST {{baseUrl}}/connection/test
+Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
 
@@ -30,6 +35,7 @@ Accept: application/json
 
 ### 4. Execute Raw Query (Runtime Config)
 POST {{baseUrl}}/query
+Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
 
@@ -44,6 +50,7 @@ Accept: application/json
 
 ### 5. Execute Raw Query (Header Config)
 POST {{baseUrl}}/query
+Authorization: Bearer {{token}}
 Content-Type: text/x-sql
 Accept: application/json
 X-Config-ID: {{connectionId}}
@@ -52,6 +59,7 @@ SELECT * FROM sqlite_master LIMIT 5;
 
 ### 6. Execute Builder Query (Runtime Config)
 POST {{baseUrl}}/query
+Authorization: Bearer {{token}}
 Content-Type: application/json
 Accept: application/json
 
@@ -76,4 +84,15 @@ Accept: application/json
 
 ### 7. Delete Connection
 DELETE {{baseUrl}}/connections/{{connectionId}}
+Authorization: Bearer {{token}}
 Accept: application/json
+
+### 8. Share Connection with Team
+POST {{baseUrl}}/connections/{{connectionId}}/share
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "team_id": "{{teamId}}",
+    "permission": "view"
+}

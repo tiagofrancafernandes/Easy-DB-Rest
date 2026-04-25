@@ -31,6 +31,11 @@ class ConnectionResource extends JsonResource
             'schema'      => $this->schema,
             'timeout'     => $this->timeout,
             'options'     => $this->options,
+            'user' => [
+                'id' => $this->user?->id,
+                'name' => $this->user?->name,
+                'email' => $this->user?->email,
+            ],
             'tags'        => $this->tags ? $this->tags->pluck('name') : [],
             'created_at'  => $this->created_at,
             'updated_at'  => $this->updated_at,

@@ -10,18 +10,32 @@ use App\Http\Requests\UpdateConnectionRequest;
 use App\Http\Resources\ConnectionResource;
 use App\Models\Connection;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class ConnectionController extends Controller
 {
+    use \Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
     public function index(): AnonymousResourceCollection
     {
-        return ConnectionResource::collection(Connection::all());
+        $user = Auth::user();
+        $connections = Connection::query()
+            ->where('user_id', $user->id)
+            ->orWhereHas('teams', function ($query) use ($user) {
+                $query->whereHas('members', fn ($q) => $q->where('users.id', $user->id));
+            })
+            ->with(['user', 'tags'])
+            ->get();
+
+        return ConnectionResource::collection($connections);
     }
 
     public function store(StoreConnectionRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $data['user_id'] = Auth::id();
         $tags = $data['tags'] ?? [];
         unset($data['tags']);
 
@@ -31,7 +45,7 @@ class ConnectionController extends Controller
             $connection->syncTags($tags);
         }
 
-        return (new ConnectionResource($connection))
+        return (new ConnectionResource($connection->load(['user', 'tags'])))
             ->response()
             ->setStatusCode(201);
     }
@@ -39,13 +53,15 @@ class ConnectionController extends Controller
     public function show(string $id): ConnectionResource
     {
         $connection = Connection::findOrFail($id);
+        $this->authorize('view', $connection);
 
-        return new ConnectionResource($connection);
+        return new ConnectionResource($connection->load(['user', 'tags']));
     }
 
     public function update(UpdateConnectionRequest $request, string $id): ConnectionResource
     {
         $connection = Connection::findOrFail($id);
+        $this->authorize('update', $connection);
 
         $data = $request->validated();
         $tags = $data['tags'] ?? null;
@@ -57,15 +73,33 @@ class ConnectionController extends Controller
             $connection->syncTags($tags);
         }
 
-        return new ConnectionResource($connection->fresh());
+        return new ConnectionResource($connection->fresh(['user', 'tags']));
     }
 
     public function destroy(string $id): JsonResponse
     {
         $connection = Connection::findOrFail($id);
+        $this->authorize('delete', $connection);
 
         $connection->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function share(Request $request, string $id): JsonResponse
+    {
+        $connection = Connection::findOrFail($id);
+        $this->authorize('update', $connection);
+
+        $data = $request->validate([
+            'team_id' => ['required', 'exists:teams,id'],
+            'permission' => ['required', \Illuminate\Validation\Rule::in(['view', 'edit', 'full'])],
+        ]);
+
+        $connection->teams()->syncWithoutDetaching([
+            $data['team_id'] => ['permission' => $data['permission']]
+        ]);
+
+        return response()->json(['message' => 'Connection shared successfully']);
     }
 }

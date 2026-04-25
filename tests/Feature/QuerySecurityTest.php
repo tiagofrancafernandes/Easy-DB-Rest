@@ -4,11 +4,37 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class QuerySecurityTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $dbPath = database_path('database.sqlite');
+
+        if (file_exists($dbPath)) {
+            unlink($dbPath);
+        }
+        touch($dbPath);
+
+        config(['database.connections.sqlite_file' => [
+            'driver' => 'sqlite',
+            'database' => $dbPath,
+            'prefix' => '',
+        ]]);
+
+        (new \Database\Seeders\SmokeTestSeeder())->run('sqlite_file');
+
+        Sanctum::actingAs(User::factory()->create());
+    }
     protected function getRuntimeConfig(): array
     {
         return [

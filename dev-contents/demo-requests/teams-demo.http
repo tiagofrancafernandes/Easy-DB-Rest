@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:8000/api
+@token = YOUR_TOKEN_HERE
+@teamId = YOUR_TEAM_ID_HERE
+
+### List Teams
+GET {{baseUrl}}/teams
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Create Team
+POST {{baseUrl}}/teams
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "Engineering Team"
+}
+
+### Add Member
+POST {{baseUrl}}/teams/{{teamId}}/members
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "user_id": 2
+}
