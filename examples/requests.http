@@ -1,6 +1,9 @@
 @baseUrl = http://localhost:8000/api
 @token = Bearer Your-Auth-Token-Here
 @connectionId = 1
+@snippetId = 019dc662-8772-710c-99f5-468843f153b7
+@teamId = 019dc662-d29a-730c-9876-468843f153b7
+@userId = 5
 
 ##########################################################
 ### --------------------------------------------------------
@@ -40,117 +43,102 @@ Authorization: {{token}}
 }
 
 ##########################################################
-### Create a PostgreSQL Connection
-POST {{baseUrl}}/connections
+### Share Connection with Team
+POST {{baseUrl}}/connections/{{connectionId}}/share
 Accept: application/json
 Content-Type: application/json
 Authorization: {{token}}
 
 {
-    "name": "E-Commerce Stats DB",
-    "driver": "pgsql",
-    "host": "db.production.local",
-    "port": 5432,
-    "database": "ecommerce_metrics",
-    "username": "analytics_user",
-    "password": "secure_password_in_base64",
-    "search_path": "analytics,public",
-    "sslmode": "require",
-    "tags": ["production", "analytics", "pgsql"]
-}
-
-##########################################################
-### Create a PostgreSQL Connection via URL with Search Path
-POST {{baseUrl}}/connections
-Accept: application/json
-Content-Type: application/json
-Authorization: {{token}}
-
-{
-    "name": "Data Warehouse",
-    "driver": "pgsql",
-    "url": "postgresql://dw_user:secret@dw-host:5433/dw_database",
-    "search_path": "analytics,public",
-    "sslmode": "require",
-    "tags": ["dw", "reporting", "pgsql"]
-}
-
-##########################################################
-### Update Connection (Change port and add tags)
-PUT {{baseUrl}}/connections/{{connectionId}}
-Accept: application/json
-Content-Type: application/json
-Authorization: {{token}}
-
-{
-    "port": 3308,
-    "tags": ["updated", "mysql"]
-}
-
-##########################################################
-### Test an Ad-hoc (Runtime) Connection using connectionId via Header
-POST {{baseUrl}}/connection/test
-Accept: application/json
-Content-Type: application/json
-X-Config-ID: {{connectionId}}
-Authorization: {{token}}
-
-##########################################################
-### Test an Ad-hoc (Runtime) Connection using connectionId via Body
-POST {{baseUrl}}/connection/test
-Accept: application/json
-Content-Type: application/json
-Authorization: {{token}}
-
-{
-    "config_id": "{{connectionId}}"
-}
-
-##########################################################
-### Delete Connection
-DELETE {{baseUrl}}/connections/{{connectionId}}
-Accept: application/json
-Authorization: {{token}}
-
-##########################################################
-### Test an Ad-hoc (Runtime) Connection INLINE
-POST {{baseUrl}}/connection/test
-Accept: application/json
-Content-Type: application/json
-Authorization: {{token}}
-
-{
-    "connection": {
-        "driver": "pgsql",
-        "host": "172.17.0.1",
-        "port": "1010",
-        "database": "postgres",
-        "username": "postgres",
-        "password": "cG9zdGdyZXM=",
-        "search_path": "public",
-        "sslmode": "prefer"
-    }
-}
-
-##########################################################
-### Test an Ad-hoc (Runtime) Connection INLINE (URL)
-POST {{baseUrl}}/connection/test
-Accept: application/json
-Content-Type: application/json
-Authorization: {{token}}
-
-{
-    "connection": {
-        "driver": "pgsql",
-        "url": "postgresql://postgres:postgres@172.17.0.1:1010/postgres",
-        "search_path": "analytics,public",
-        "sslmode": "prefer"
-    }
+    "team_id": "{{teamId}}",
+    "permission": "view"
 }
 
 ##########################################################
 ### --------------------------------------------------------
-### 2. RAW SQL EXECUTION
+### 2. SNIPPET MANAGEMENT
+### --------------------------------------------------------
+
+##########################################################
+### List Snippets
+GET {{baseUrl}}/snippets
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Create Snippet
+POST {{baseUrl}}/snippets
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "name": "queries/active_users.sql",
+    "content": "SELECT * FROM users WHERE active = 1;",
+    "public_content_slug": "active-users-list",
+    "public_content_password": "mypassword",
+    "public_content_index": false,
+    "tags": ["sql", "admin"]
+}
+
+##########################################################
+### Get Public Snippet (JSON)
+GET {{baseUrl}}/snippets/{{userId}}/active-users-list?password=mypassword
+Accept: application/json
+
+##########################################################
+### Get Public Snippet (Plain Text)
+GET {{baseUrl}}/snippets/{{userId}}/active-users-list?password=mypassword&text
+Accept: text/plain
+
+##########################################################
+### Share Snippet with Team
+POST {{baseUrl}}/snippets/{{snippetId}}/share
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "team_id": "{{teamId}}",
+    "permission": "edit"
+}
+
+##########################################################
+### --------------------------------------------------------
+### 3. TEAM MANAGEMENT
+### --------------------------------------------------------
+
+##########################################################
+### List Teams
+GET {{baseUrl}}/teams
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Create Team
+POST {{baseUrl}}/teams
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "name": "Backend Team"
+}
+
+##########################################################
+### Add Member to Team
+POST {{baseUrl}}/teams/{{teamId}}/members
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "user_id": "{{userId}}"
+}
+
+##########################################################
+### --------------------------------------------------------
+### 4. QUERY EXECUTION
 ### --------------------------------------------------------
 
 ##########################################################
@@ -175,82 +163,24 @@ Authorization: {{token}}
 }
 
 ##########################################################
-### Execute Raw SQL using Persisted Connection (via Header)
-# Use Content-Type: text/x-sql to send SQL directly in the body
-POST {{baseUrl}}/query
-Accept: application/json
-Content-Type: text/x-sql
-Authorization: {{token}}
-X-Config-ID: {{connectionId}}
-
-SELECT id, name, email
-FROM users
-ORDER BY created_at DESC
-LIMIT 5;
-
-
-##########################################################
-### --------------------------------------------------------
-### 3. QUERY BUILDER EXECUTION (Declarative)
-### --------------------------------------------------------
-
-##########################################################
-### Execute Query Builder via Runtime Config
+### Execute Query Builder
 POST {{baseUrl}}/query
 Accept: application/json
 Content-Type: application/json
 Authorization: {{token}}
+X-Config-ID: {{connectionId}}
 
 {
     "type": "select",
     "table": "orders",
     "query": [
         {
-            "method": "select",
-            "args": ["id", "product_id", "total", "created_at"]
-        },
-        {
             "method": "where",
             "args": ["total", ">", 100]
         },
         {
-            "method": "orderByDesc",
-            "args": ["created_at"]
-        },
-        {
             "method": "limit",
-            "args": [10]
-        }
-    ],
-    "connection": {
-        "driver": "pgsql",
-        "host": "127.0.0.1",
-        "port": 5432,
-        "database": "my_database",
-        "username": "my_user",
-        "password": "my_password_in_base64"
-    }
-}
-
-##########################################################
-### Execute Query Builder using Persisted Connection (via Header)
-POST {{baseUrl}}/query
-Accept: application/json
-Content-Type: application/json
-Authorization: {{token}}
-X-Config-ID: {{connectionId}}
-
-{
-    "type": "select",
-    "table": "products",
-    "query": [
-        {
-            "method": "where",
-            "args": ["stock", "<", 5]
-        },
-        {
-            "method": "where",
-            "args": ["active", "=", 1]
+            "args": [5]
         }
     ]
 }

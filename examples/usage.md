@@ -9,54 +9,59 @@ This document provides examples of how to interact with the **Easy DB Rest API**
 ### Execute a Raw SQL Query (Runtime Configuration)
 ```bash
 curl -X POST http://127.0.0.1:8000/api/query \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer Your-Auth-Token-Here" \
-  -d '{
-    "type": "raw",
-    "query": "SELECT * FROM users WHERE active = 1 LIMIT 10",
-    "connection": {
-        "driver": "pgsql",
-        "host": "127.0.0.1",
-        "port": 5432,
-        "database": "my_database",
-        "username": "my_user",
-        "password": "my_password_in_base64"
-    }
-  }'
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "type": "raw",
+        "query": "SELECT * FROM users WHERE active = 1 LIMIT 10",
+        "connection": {
+            "driver": "pgsql",
+            "host": "127.0.0.1",
+            "port": 5432,
+            "database": "my_database",
+            "username": "my_user",
+            "password": "my_password_in_base64"
+        }
+    }'
 ```
 
 ### Execute a Declarative Query Builder (Persisted Configuration)
 ```bash
 curl -X POST http://127.0.0.1:8000/api/query \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer Your-Auth-Token-Here" \
-  -H "X-Config-ID: 1" \
-  -d '{
-    "type": "select",
-    "table": "orders",
-    "query": [
-        {
-            "method": "where",
-            "args": ["total", ">", 100]
-        },
-        {
-            "method": "limit",
-            "args": [5]
-        }
-    ]
-  }'
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -H "X-Config-ID: 1" \
+    -d '{
+        "type": "select",
+        "table": "orders",
+        "query": [
+            {
+                "method": "where",
+                "args": ["total", ">", 100]
+            },
+            {
+                "method": "limit",
+                "args": [5]
+            }
+        ]
+    }'
 ```
 
-### Execute Raw SQL in Body (Text/SQL)
+### Create a Snippet
 ```bash
-curl -X POST http://127.0.0.1:8000/api/query \
-  -H "Accept: application/json" \
-  -H "Content-Type: text/x-sql" \
-  -H "Authorization: Bearer Your-Auth-Token-Here" \
-  -H "X-Config-ID: 1" \
-  -d 'SELECT id, name FROM products ORDER BY name ASC LIMIT 5;'
+curl -X POST http://127.0.0.1:8000/api/snippets \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "name": "reports/monthly_revenue.sql",
+        "content": "SELECT SUM(total) FROM orders WHERE created_at >= '\''2024-01-01'\'';",
+        "public_content_slug": "jan-2024-revenue",
+        "public_content_password": "securepassword",
+        "tags": ["sql", "finance", "report"]
+    }'
 ```
 
 ---
@@ -66,36 +71,49 @@ curl -X POST http://127.0.0.1:8000/api/query \
 ### Execute a Query Builder
 ```javascript
 async function fetchTopOrders() {
-  const payload = {
-    type: "select",
-    table: "orders",
-    query: [
-      { method: "select", args: ["id", "total"] },
-      { method: "orderByDesc", args: ["total"] },
-      { method: "limit", args: [10] }
-    ]
-  };
+    const payload = {
+        type: "select",
+        table: "orders",
+        query: [
+            { method: "select", args: ["id", "total"] },
+            { method: "orderByDesc", args: ["total"] },
+            { method: "limit", args: [10] }
+        ]
+    };
 
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/query', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer Your-Auth-Token-Here',
-        'X-Config-ID': '1' // Using persisted connection ID 1
-      },
-      body: JSON.stringify(payload)
-    });
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/query', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer Your-Auth-Token-Here',
+                'X-Config-ID': '1' // Using persisted connection ID 1
+            },
+            body: JSON.stringify(payload)
+        });
 
-    const result = await response.json();
-    console.log("Top Orders:", result.data);
-  } catch (error) {
-    console.error("Error executing query:", error);
-  }
+        const result = await response.json();
+        console.log("Top Orders:", result.data);
+    } catch (error) {
+        console.error("Error executing query:", error);
+    }
 }
 
 fetchTopOrders();
+```
+
+### Access a Public Snippet (Plain Text)
+```javascript
+async function getSnippet() {
+    const userId = "019dc662-8772-710c-99f5-468843f153b7";
+    const slug = "jan-2024-revenue";
+    const password = "securepassword";
+
+    const response = await fetch(`http://127.0.0.1:8000/api/snippets/${userId}/${slug}?password=${password}&text`);
+    const sql = await response.text();
+    console.log("SQL Content:", sql);
+}
 ```
 
 ---
@@ -144,85 +162,55 @@ try {
 }
 ```
 
-### Send Raw SQL using `text/x-sql` Header
-```php
-<?php
-
-// Reusing $client from above
-
-try {
-    $response = $client->post('query', [
-        'headers' => [
-            'Accept'        => 'application/json',
-            'Content-Type'  => 'text/x-sql',
-            'Authorization' => 'Bearer Your-Auth-Token-Here',
-            'X-Config-ID'   => '1', // The ID of the configured connection
-        ],
-        'body' => 'SELECT name, price FROM products WHERE active = 1 ORDER BY price DESC LIMIT 5;'
-    ]);
-
-    $data = json_decode($response->getBody()->getContents(), true);
-    print_r($data['data']);
-
-} catch (RequestException $e) {
-    echo "Request failed: " . $e->getMessage();
-}
-```
-
 ---
 
-## 4. Connection Management
+## 4. Connection & Team Management
 
-### Create a new MySQL Connection (Advanced)
+### Share a Connection with a Team
+```bash
+curl -X POST http://127.0.0.1:8000/api/connections/{uuid}/share \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "team_id": "019dc662-d29a-730c-9876-468843f153b7",
+        "permission": "view"
+    }'
+```
+
+### Create a Team and Add a Member
+```bash
+# 1. Create the team
+curl -X POST http://127.0.0.1:8000/api/teams \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "name": "DevOps Experts"
+    }'
+
+# 2. Add a member
+curl -X POST http://127.0.0.1:8000/api/teams/{team_uuid}/members \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "user_id": 5
+    }'
+```
+
+### Create a PostgreSQL Connection via URL
 ```bash
 curl -X POST http://127.0.0.1:8000/api/connections \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer Your-Auth-Token-Here" \
-  -d '{
-    "name": "E-Commerce Stats DB",
-    "driver": "mysql",
-    "host": "db.production.local",
-    "port": 3307,
-    "database": "ecommerce_metrics",
-    "username": "analytics_user",
-    "password": "secure_password",
-    "charset": "utf8mb4",
-    "collation": "utf8mb4_unicode_ci",
-    "tags": ["production", "analytics", "mysql"]
-  }'
-```
-
-### Create a PostgreSQL Connection via URL with Search Path
-```bash
-curl -X POST http://127.0.0.1:8000/api/connections \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer Your-Auth-Token-Here" \
-  -d '{
-    "name": "Data Warehouse",
-    "driver": "pgsql",
-    "url": "postgresql://dw_user:secret@dw-host:5433/dw_database",
-    "search_path": "analytics,public",
-    "sslmode": "require",
-    "tags": ["dw", "reporting", "pgsql"]
-  }'
-```
-
-### Update Connection (Add tags)
-```bash
-curl -X PUT http://127.0.0.1:8000/api/connections/{uuid} \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer Your-Auth-Token-Here" \
-  -d '{
-    "tags": ["updated", "important"]
-  }'
-```
-
-### Delete Connection
-```bash
-curl -X DELETE http://127.0.0.1:8000/api/connections/{uuid} \
-  -H "Accept: application/json" \
-  -H "Authorization: Bearer Your-Auth-Token-Here"
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "name": "Data Warehouse",
+        "driver": "pgsql",
+        "url": "postgresql://dw_user:secret@dw-host:5433/dw_database",
+        "search_path": "analytics,public",
+        "sslmode": "require",
+        "tags": ["dw", "reporting", "pgsql"]
+    }'
 ```
