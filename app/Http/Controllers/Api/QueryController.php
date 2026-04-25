@@ -47,77 +47,125 @@ class QueryController extends Controller
 
     public function builder(QueryRequest $request): JsonResponse
     {
-        $payload = QueryPayloadDto::fromArray($request->validated());
+        try {
+            $payload = QueryPayloadDto::fromArray($request->validated());
 
-        $result = $this->executor->execute(
-            payload:           $payload,
-            configId:          $request->header('X-Config-ID') ?? $request->input('config_id'),
-            inlineConnection:  $request->input('connection'),
-            overrides:         $request->input('overrides', []),
-        );
+            $result = $this->executor->execute(
+                payload:           $payload,
+                configId:          $request->header('X-Config-ID') ?? $request->input('config_id'),
+                inlineConnection:  $request->input('connection'),
+                overrides:         $request->input('overrides', []),
+            );
 
-        return (new QueryResultResource($result))->response();
+            return (new QueryResultResource($result))->response();
+        } catch (\Throwable $e) {
+            if (!app()->environment('production') && config('app.debug')) {
+                throw $e;
+            }
+
+            return response()->json([
+                'error'   => true,
+                'message' => 'Query builder execution failed: ' . $e->getMessage(),
+                'details' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     public function test(Request $request): JsonResponse
     {
-        $configId    = $request->header('X-Config-ID') ?? $request->input('config_id');
-        $inline      = $request->input('connection');
-        $overrides   = $request->input('overrides', []);
+        try {
+            $configId    = $request->header('X-Config-ID') ?? $request->input('config_id');
+            $inline      = $request->input('connection');
+            $overrides   = $request->input('overrides', []);
 
-        $this->guardConnectionInput($configId, $inline);
+            $this->guardConnectionInput($configId, $inline);
 
-        $this->executor->testConnection($configId, $inline, $overrides);
+            $this->executor->testConnection($configId, $inline, $overrides);
 
-        return response()->json([
-            'connected' => true,
-            'message'   => 'Connection established successfully.',
-        ]);
+            return response()->json([
+                'connected' => true,
+                'message'   => 'Connection established successfully.',
+            ]);
+        } catch (\Throwable $e) {
+            if (!app()->environment('production') && config('app.debug')) {
+                throw $e;
+            }
+
+            return response()->json([
+                'connected' => false,
+                'message'   => 'Connection test failed: ' . $e->getMessage(),
+                'error'     => $e->getMessage(),
+            ], 422);
+        }
     }
 
     private function executeRawFromBody(Request $request): JsonResponse
     {
-        $sql = trim($request->getContent());
+        try {
+            $sql = trim($request->getContent());
 
-        if ($sql === '') {
+            if ($sql === '') {
+                return response()->json([
+                    'error'   => true,
+                    'message' => 'Request body must contain a SQL query.',
+                    'code'    => 'EMPTY_QUERY',
+                    'details' => (object) [],
+                ], 422);
+            }
+
+            $configId  = $request->header('X-Config-ID') ?? $request->input('config_id');
+            $inline    = $request->input('connection');
+            $overrides = $request->input('overrides', []);
+
+            $this->guardConnectionInput($configId, $inline);
+
+            $payload = QueryPayloadDto::fromRawSql($sql);
+
+            $result = $this->executor->execute(
+                payload:          $payload,
+                configId:         $configId,
+                inlineConnection: $inline,
+                overrides:        $overrides,
+            );
+
+            return (new QueryResultResource($result))->response();
+        } catch (\Throwable $e) {
+            if (!app()->environment('production') && config('app.debug')) {
+                throw $e;
+            }
+
             return response()->json([
                 'error'   => true,
-                'message' => 'Request body must contain a SQL query.',
-                'code'    => 'EMPTY_QUERY',
-                'details' => (object) [],
+                'message' => 'Raw query execution failed: ' . $e->getMessage(),
+                'details' => $e->getMessage(),
             ], 422);
         }
-
-        $configId  = $request->header('X-Config-ID') ?? $request->input('config_id');
-        $inline    = $request->input('connection');
-        $overrides = $request->input('overrides', []);
-
-        $this->guardConnectionInput($configId, $inline);
-
-        $payload = QueryPayloadDto::fromRawSql($sql);
-
-        $result = $this->executor->execute(
-            payload:          $payload,
-            configId:         $configId,
-            inlineConnection: $inline,
-            overrides:        $overrides,
-        );
-
-        return (new QueryResultResource($result))->response();
     }
 
     private function executeFromJson(QueryRequest $request): JsonResponse
     {
-        $payload = QueryPayloadDto::fromArray($request->validated());
+        try {
+            $payload = QueryPayloadDto::fromArray($request->validated());
 
-        $result = $this->executor->execute(
-            payload:          $payload,
-            configId:         $request->header('X-Config-ID') ?? $request->input('config_id'),
-            inlineConnection: $request->input('connection'),
-            overrides:        $request->input('overrides', []),
-        );
+            $result = $this->executor->execute(
+                payload:          $payload,
+                configId:         $request->header('X-Config-ID') ?? $request->input('config_id'),
+                inlineConnection: $request->input('connection'),
+                overrides:        $request->input('overrides', []),
+            );
 
-        return (new QueryResultResource($result))->response();
+            return (new QueryResultResource($result))->response();
+        } catch (\Throwable $e) {
+            if (!app()->environment('production') && config('app.debug')) {
+                throw $e;
+            }
+
+            return response()->json([
+                'error'   => true,
+                'message' => 'Query execution failed: ' . $e->getMessage(),
+                'details' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     private function isSqlContentType(string $contentType): bool
