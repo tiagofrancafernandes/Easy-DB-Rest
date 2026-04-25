@@ -171,3 +171,7 @@ Examples of HTTP requests and code snippets (cURL, PHP, JavaScript) for API inte
 - English only: All code, variables, methods, classes in English
 - Minimal comments: DocBlocks only, let code explain itself
 - Follow UNIVERSAL-CODE-STYLE-RULES.md strictly (non-negotiable)
+
+## Git & Commits
+
+- **Hooks**: NEVER use `--no-verify` or `-n` when committing. All pre-commit hooks MUST be executed as they perform critical validations (formatting, tests, etc.).

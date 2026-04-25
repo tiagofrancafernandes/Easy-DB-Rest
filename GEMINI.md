@@ -26,3 +26,6 @@ Additionally, you must apply the following guidelines:
 - **SOLID**: Apply SOLID principles in the architecture and object-oriented design.
 - **PHP Standards**: All PHP code must strictly follow PSR-12 recommendations.
 - **Laravel Patterns**: Follow Laravel framework conventions and best practices (proper use of Controllers, Models, Form Requests, Services, Resources, etc.).
+
+## Git & Commits
+- **Hooks**: NEVER use `--no-verify` or `-n` when committing. All pre-commit hooks MUST be executed as they perform critical validations (formatting, tests, etc.).
