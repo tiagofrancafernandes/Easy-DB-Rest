@@ -131,4 +131,33 @@ class ConnectionCrudTest extends TestCase
 
         $this->assertArrayNotHasKey('password', $body['data']);
     }
+
+    #[Test]
+    public function itCreatesAConnectionWithTags(): void
+    {
+        $payload = $this->sqlitePayload('Tagged DB');
+        $payload['tags'] = ['production', 'sqlite'];
+
+        $response = $this->postJson('/api/connections', $payload);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.tags.0', 'production')
+            ->assertJsonPath('data.tags.1', 'sqlite');
+    }
+
+    #[Test]
+    public function itCreatesAConnectionViaUrlWithoutDatabaseField(): void
+    {
+        $payload = [
+            'name'   => 'URL DB',
+            'driver' => 'pgsql',
+            'url'    => 'postgresql://user:pass@host:5432/dbname',
+        ];
+
+        $response = $this->postJson('/api/connections', $payload);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.url', $payload['url'])
+            ->assertJsonPath('data.database', null);
+    }
 }
