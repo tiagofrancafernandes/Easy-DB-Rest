@@ -15,18 +15,25 @@ class ConnectionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,
-            'name'       => $this->name,
-            'driver'     => $this->driver,
-            'host'       => $this->host,
-            'port'       => $this->port,
-            'database'   => $this->database,
-            'username'   => $this->username,
-            'schema'     => $this->schema,
-            'timeout'    => $this->timeout,
-            'options'    => $this->options,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id'          => $this->id,
+            'name'        => $this->name,
+            'driver'      => $this->driver,
+            'url'         => $this->url,
+            'host'        => $this->host,
+            'port'        => $this->port,
+            'database'    => $this->database,
+            'username'    => $this->username,
+            'charset'     => $this->charset,
+            'collation'   => $this->collation,
+            'prefix'      => $this->prefix,
+            'search_path' => $this->search_path,
+            'sslmode'     => $this->sslmode,
+            'schema'      => $this->schema,
+            'timeout'     => $this->timeout,
+            'options'     => $this->options,
+            'tags'        => $this->tags ? $this->tags->pluck('name') : [],
+            'created_at'  => $this->created_at,
+            'updated_at'  => $this->updated_at,
         ];
     }
 }

@@ -6,21 +6,55 @@
 ### 1. CONNECTION MANAGEMENT
 ### --------------------------------------------------------
 
-### Create a new Persistent Connection
+### Create a new MySQL Connection (Advanced)
 POST {{baseUrl}}/connections
 Accept: application/json
 Content-Type: application/json
 Authorization: {{token}}
 
 {
-    "name": "Production Database",
+    "name": "E-Commerce Stats DB",
     "driver": "mysql",
-    "host": "127.0.0.1",
-    "port": 3306,
-    "database": "prod_db",
-    "username": "root",
-    "password": "secret_password"
+    "host": "db.production.local",
+    "port": 3307,
+    "database": "ecommerce_metrics",
+    "username": "analytics_user",
+    "password": "secure_password",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_unicode_ci",
+    "tags": ["production", "analytics", "mysql"]
 }
+
+### Create a PostgreSQL Connection via URL with Search Path
+POST {{baseUrl}}/connections
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "name": "Data Warehouse",
+    "driver": "pgsql",
+    "url": "postgresql://dw_user:secret@dw-host:5433/dw_database",
+    "search_path": "analytics,public",
+    "sslmode": "require",
+    "tags": ["dw", "reporting", "pgsql"]
+}
+
+### Update Connection (Change port and add tags)
+PUT {{baseUrl}}/connections/{{connectionId}}
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "port": 3308,
+    "tags": ["updated", "mysql"]
+}
+
+### Delete Connection
+DELETE {{baseUrl}}/connections/{{connectionId}}
+Accept: application/json
+Authorization: {{token}}
 
 ### List All Connections
 GET {{baseUrl}}/connections

@@ -21,7 +21,15 @@ class ConnectionController extends Controller
 
     public function store(StoreConnectionRequest $request): JsonResponse
     {
-        $connection = Connection::create($request->validated());
+        $data = $request->validated();
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
+        $connection = Connection::create($data);
+
+        if (!empty($tags)) {
+            $connection->syncTags($tags);
+        }
 
         return (new ConnectionResource($connection))
             ->response()
@@ -39,7 +47,15 @@ class ConnectionController extends Controller
     {
         $connection = Connection::findOrFail($id);
 
-        $connection->update($request->validated());
+        $data = $request->validated();
+        $tags = $data['tags'] ?? null;
+        unset($data['tags']);
+
+        $connection->update($data);
+
+        if ($tags !== null) {
+            $connection->syncTags($tags);
+        }
 
         return new ConnectionResource($connection->fresh());
     }

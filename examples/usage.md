@@ -164,3 +164,61 @@ try {
     echo "Request failed: " . $e->getMessage();
 }
 ```
+
+---
+
+## 4. Connection Management
+
+### Create a new MySQL Connection (Advanced)
+```bash
+curl -X POST http://127.0.0.1:8000/api/connections \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer Your-Auth-Token-Here" \
+  -d '{
+    "name": "E-Commerce Stats DB",
+    "driver": "mysql",
+    "host": "db.production.local",
+    "port": 3307,
+    "database": "ecommerce_metrics",
+    "username": "analytics_user",
+    "password": "secure_password",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_unicode_ci",
+    "tags": ["production", "analytics", "mysql"]
+  }'
+```
+
+### Create a PostgreSQL Connection via URL with Search Path
+```bash
+curl -X POST http://127.0.0.1:8000/api/connections \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer Your-Auth-Token-Here" \
+  -d '{
+    "name": "Data Warehouse",
+    "driver": "pgsql",
+    "url": "postgresql://dw_user:secret@dw-host:5433/dw_database",
+    "search_path": "analytics,public",
+    "sslmode": "require",
+    "tags": ["dw", "reporting", "pgsql"]
+  }'
+```
+
+### Update Connection (Add tags)
+```bash
+curl -X PUT http://127.0.0.1:8000/api/connections/{uuid} \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer Your-Auth-Token-Here" \
+  -d '{
+    "tags": ["updated", "important"]
+  }'
+```
+
+### Delete Connection
+```bash
+curl -X DELETE http://127.0.0.1:8000/api/connections/{uuid} \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer Your-Auth-Token-Here"
+```

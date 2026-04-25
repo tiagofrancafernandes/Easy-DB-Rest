@@ -76,15 +76,21 @@ class ConnectionManager
             : $dto->password;
 
         return new ConnectionConfigDto(
-            driver:   $dto->driver,
-            database: $overrides['database'] ?? $dto->database,
-            host:     $overrides['host'] ?? $dto->host,
-            port:     isset($overrides['port']) ? (int) $overrides['port'] : $dto->port,
-            username: $overrides['username'] ?? $dto->username,
-            password: $password,
-            schema:   $overrides['schema'] ?? $dto->schema,
-            timeout:  isset($overrides['timeout']) ? (int) $overrides['timeout'] : $dto->timeout,
-            options:  $overrides['options'] ?? $dto->options,
+            driver:      $dto->driver,
+            database:    $overrides['database'] ?? $dto->database,
+            host:        $overrides['host'] ?? $dto->host,
+            port:        isset($overrides['port']) ? (int) $overrides['port'] : $dto->port,
+            username:    $overrides['username'] ?? $dto->username,
+            password:    $password,
+            schema:      $overrides['schema'] ?? $dto->schema,
+            timeout:     isset($overrides['timeout']) ? (int) $overrides['timeout'] : $dto->timeout,
+            options:     $overrides['options'] ?? $dto->options,
+            url:         $overrides['url'] ?? $dto->url,
+            charset:     $overrides['charset'] ?? $dto->charset,
+            collation:   $overrides['collation'] ?? $dto->collation,
+            prefix:      $overrides['prefix'] ?? $dto->prefix,
+            search_path: $overrides['search_path'] ?? $dto->search_path,
+            sslmode:     $overrides['sslmode'] ?? $dto->sslmode,
         );
     }
 
