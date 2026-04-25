@@ -39,7 +39,7 @@ class RawQueryExecutor
         ];
     }
 
-    private function runWithTimeout(
+    protected function runWithTimeout(
         Connection $connection,
         string $sql,
         array $bindings,
@@ -54,7 +54,7 @@ class RawQueryExecutor
         }
     }
 
-    private function elapsedMs(int|float $startNano): string
+    protected function elapsedMs(int|float $startNano): string
     {
         $elapsed = (hrtime(true) - $startNano) / 1_000_000;
 

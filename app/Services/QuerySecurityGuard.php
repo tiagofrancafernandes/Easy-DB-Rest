@@ -12,14 +12,14 @@ class QuerySecurityGuard
     /**
      * @var list<string>
      */
-    private readonly array $blockedStatements;
+    protected readonly array $blockedStatements;
 
     /**
      * @var list<string>
      */
-    private readonly array $allowedBuilderMethods;
+    protected readonly array $allowedBuilderMethods;
 
-    private readonly bool $blockDangerous;
+    protected readonly bool $blockDangerous;
 
     public function __construct()
     {
@@ -39,7 +39,7 @@ class QuerySecurityGuard
         $this->validateBuilderSteps((array) $payload->query);
     }
 
-    private function validateRawSql(string $sql): void
+    protected function validateRawSql(string $sql): void
     {
         if (!$this->blockDangerous) {
             return;
@@ -59,7 +59,7 @@ class QuerySecurityGuard
     /**
      * @param array<mixed> $steps
      */
-    private function validateBuilderSteps(array $steps): void
+    protected function validateBuilderSteps(array $steps): void
     {
         foreach ($steps as $step) {
             $method = (string) ($step['method'] ?? $step[0] ?? '');

@@ -22,7 +22,7 @@ class QueryExecutionTest extends TestCase
         $this->seed(SmokeTestSeeder::class);
     }
 
-    private function getRuntimeConfig(): array
+    protected function getRuntimeConfig(): array
     {
         return [
             'name'     => 'Runtime DB',

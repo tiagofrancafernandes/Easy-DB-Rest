@@ -10,10 +10,10 @@ use App\DTOs\QueryPayloadDto;
 class QueryExecutorService
 {
     public function __construct(
-        private readonly ConnectionManager $connectionManager,
-        private readonly QuerySecurityGuard $securityGuard,
-        private readonly RawQueryExecutor $rawExecutor,
-        private readonly BuilderQueryExecutor $builderExecutor,
+        protected readonly ConnectionManager $connectionManager,
+        protected readonly QuerySecurityGuard $securityGuard,
+        protected readonly RawQueryExecutor $rawExecutor,
+        protected readonly BuilderQueryExecutor $builderExecutor,
     ) {
     }
 
@@ -44,7 +44,7 @@ class QueryExecutorService
         return true;
     }
 
-    private function buildConfigDto(?string $configId, ?array $inlineConnection, array $overrides): ConnectionConfigDto
+    protected function buildConfigDto(?string $configId, ?array $inlineConnection, array $overrides): ConnectionConfigDto
     {
         if ($configId !== null) {
             $model = \App\Models\Connection::findOrFail($configId);

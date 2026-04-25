@@ -13,7 +13,7 @@ class ConnectionCrudTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function sqlitePayload(string $name = 'Test DB'): array
+    protected function sqlitePayload(string $name = 'Test DB'): array
     {
         return [
             'name'     => $name,

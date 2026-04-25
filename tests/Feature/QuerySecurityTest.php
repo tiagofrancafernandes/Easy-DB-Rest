@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class QuerySecurityTest extends TestCase
 {
-    private function getRuntimeConfig(): array
+    protected function getRuntimeConfig(): array
     {
         return [
             'name'     => 'Runtime DB',

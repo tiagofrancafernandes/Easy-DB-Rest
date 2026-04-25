@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class BuilderQueryExecutor
 {
-    private const TERMINAL_METHODS = ['get', 'first', 'value', 'pluck', 'count', 'exists', 'doesntExist'];
+    protected const TERMINAL_METHODS = ['get', 'first', 'value', 'pluck', 'count', 'exists', 'doesntExist'];
 
     public function execute(
         Connection $connection,
@@ -42,7 +42,7 @@ class BuilderQueryExecutor
         ];
     }
 
-    private function buildQuery(Connection $connection, QueryPayloadDto $payload): Builder
+    protected function buildQuery(Connection $connection, QueryPayloadDto $payload): Builder
     {
         $builder = $connection->table($payload->table ?? '');
 
@@ -60,7 +60,7 @@ class BuilderQueryExecutor
         return $builder;
     }
 
-    private function runTerminal(Builder $builder, ?array $executeDirective): mixed
+    protected function runTerminal(Builder $builder, ?array $executeDirective): mixed
     {
         if ($executeDirective === null) {
             return $builder->get()->toArray();
@@ -76,7 +76,7 @@ class BuilderQueryExecutor
         return $builder->{$method}(...$args);
     }
 
-    private function normalizeRows(mixed $rows): array
+    protected function normalizeRows(mixed $rows): array
     {
         if (is_array($rows)) {
             return $rows;
@@ -89,7 +89,7 @@ class BuilderQueryExecutor
         return [$rows];
     }
 
-    private function elapsedMs(int|float $startNano): string
+    protected function elapsedMs(int|float $startNano): string
     {
         $elapsed = (hrtime(true) - $startNano) / 1_000_000;
 

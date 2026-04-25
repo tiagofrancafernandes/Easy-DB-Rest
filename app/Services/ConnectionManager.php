@@ -18,7 +18,7 @@ class ConnectionManager
     /**
      * @var list<string>
      */
-    private readonly array $allowedDrivers;
+    protected readonly array $allowedDrivers;
 
     public function __construct()
     {
@@ -44,7 +44,7 @@ class ConnectionManager
         return $this->register($dto);
     }
 
-    private function buildDto(
+    protected function buildDto(
         ?string $configId,
         ?array $inlineConfig,
         array $overrides,
@@ -65,7 +65,7 @@ class ConnectionManager
         throw ConnectionException::connectionFailed('No connection config ID or inline config provided.');
     }
 
-    private function applyOverrides(ConnectionConfigDto $dto, array $overrides): ConnectionConfigDto
+    protected function applyOverrides(ConnectionConfigDto $dto, array $overrides): ConnectionConfigDto
     {
         if (empty($overrides)) {
             return $dto;
@@ -94,7 +94,7 @@ class ConnectionManager
         );
     }
 
-    private function guardAllowedDriver(SupportedDriver $driver): void
+    protected function guardAllowedDriver(SupportedDriver $driver): void
     {
         if (in_array($driver->value, $this->allowedDrivers, strict: true)) {
             return;
@@ -103,7 +103,7 @@ class ConnectionManager
         throw ConnectionException::driverNotAllowed($driver->value);
     }
 
-    private function register(ConnectionConfigDto $dto): DbConnection
+    protected function register(ConnectionConfigDto $dto): DbConnection
     {
         $name = 'dynamic_' . Str::uuid()->toString();
 

@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 
 class QueryController extends Controller
 {
-    private const SQL_CONTENT_TYPES = [
+    protected const SQL_CONTENT_TYPES = [
         'application/sql',
         'text/x-sql',
         'text/x-mysql',
@@ -25,7 +25,7 @@ class QueryController extends Controller
     ];
 
     public function __construct(
-        private readonly QueryExecutorService $executor,
+        protected readonly QueryExecutorService $executor,
     ) {
     }
 
@@ -99,7 +99,7 @@ class QueryController extends Controller
         }
     }
 
-    private function executeRawFromBody(Request $request): JsonResponse
+    protected function executeRawFromBody(Request $request): JsonResponse
     {
         try {
             $sql = trim($request->getContent());
@@ -142,7 +142,7 @@ class QueryController extends Controller
         }
     }
 
-    private function executeFromJson(QueryRequest $request): JsonResponse
+    protected function executeFromJson(QueryRequest $request): JsonResponse
     {
         try {
             $payload = QueryPayloadDto::fromArray($request->validated());
@@ -168,7 +168,7 @@ class QueryController extends Controller
         }
     }
 
-    private function isSqlContentType(string $contentType): bool
+    protected function isSqlContentType(string $contentType): bool
     {
         foreach (static::SQL_CONTENT_TYPES as $type) {
             if (str_starts_with($contentType, $type)) {
@@ -179,7 +179,7 @@ class QueryController extends Controller
         return false;
     }
 
-    private function guardConnectionInput(?string $configId, mixed $inline): void
+    protected function guardConnectionInput(?string $configId, mixed $inline): void
     {
         if ($configId !== null || $inline !== null) {
             return;
