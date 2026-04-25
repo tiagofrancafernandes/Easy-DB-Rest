@@ -16,8 +16,12 @@ curl -X POST http://127.0.0.1:8000/api/query \
     "type": "raw",
     "query": "SELECT * FROM users WHERE active = 1 LIMIT 10",
     "connection": {
-        "driver": "sqlite",
-        "database": "/path/to/database.sqlite"
+        "driver": "pgsql",
+        "host": "127.0.0.1",
+        "port": 5432,
+        "database": "my_database",
+        "username": "my_user",
+        "password": "my_password_in_base64"
     }
   }'
 ```

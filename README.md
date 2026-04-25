@@ -13,7 +13,7 @@ It allows external applications to execute queries on various database engines (
 
 ## 📚 Examples
 
-Integration examples (cURL, JavaScript, PHP) and ready-to-use HTTP requests can be found in the `examples/` directory.
+Integration examples (cURL, JavaScript, PHP) and ready-to-use HTTP requests (see [requests.http](examples/requests.http)) can be found in the `examples/` directory.
 
 ---
 
