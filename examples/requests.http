@@ -138,7 +138,85 @@ Authorization: {{token}}
 
 ##########################################################
 ### --------------------------------------------------------
-### 4. QUERY EXECUTION
+### 4. DATABASE & SCHEMA MANAGEMENT
+### --------------------------------------------------------
+
+##########################################################
+### List Databases
+GET {{baseUrl}}/connections/{{connectionId}}/databases
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Create Database
+POST {{baseUrl}}/connections/{{connectionId}}/databases
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "name": "new_app_db"
+}
+
+##########################################################
+### List Schemas (PostgreSQL/SQL Server)
+GET {{baseUrl}}/connections/{{connectionId}}/schemas
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### --------------------------------------------------------
+### 5. TABLE MANAGEMENT
+### --------------------------------------------------------
+
+##########################################################
+### List Tables
+GET {{baseUrl}}/connections/{{connectionId}}/tables
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Create Table
+POST {{baseUrl}}/connections/{{connectionId}}/tables
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "table": "tasks",
+    "columns": [
+        {"name": "id", "type": "id"},
+        {"name": "title", "type": "string"},
+        {"name": "completed", "type": "boolean", "default": false},
+        {"name": "user_id", "type": "unsignedBigInteger"}
+    ]
+}
+
+##########################################################
+### Get Table Details
+GET {{baseUrl}}/connections/{{connectionId}}/tables/tasks
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Alter Table
+PUT {{baseUrl}}/connections/{{connectionId}}/tables/tasks
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "add": [
+        {"name": "due_date", "type": "timestamp", "nullable": true}
+    ],
+    "rename": {
+        "title": "heading"
+    }
+}
+
+##########################################################
+### --------------------------------------------------------
+### 6. QUERY EXECUTION
 ### --------------------------------------------------------
 
 ##########################################################

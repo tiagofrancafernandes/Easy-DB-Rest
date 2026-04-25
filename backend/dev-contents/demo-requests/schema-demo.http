@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:8000/api
+@token = Bearer Your-Auth-Token-Here
+@connectionId = 1
+
+##########################################################
+### List Tables
+GET {{baseUrl}}/connections/{{connectionId}}/tables
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Create a Table
+POST {{baseUrl}}/connections/{{connectionId}}/tables
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "table": "demo_table",
+    "columns": [
+        {"name": "id", "type": "id"},
+        {"name": "name", "type": "string"},
+        {"name": "is_active", "type": "boolean", "default": true}
+    ]
+}
+
+##########################################################
+### Get Table Structure
+GET {{baseUrl}}/connections/{{connectionId}}/tables/demo_table
+Accept: application/json
+Authorization: {{token}}
+
+##########################################################
+### Alter Table (Add Column)
+PUT {{baseUrl}}/connections/{{connectionId}}/tables/demo_table
+Accept: application/json
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+    "add": [
+        {"name": "description", "type": "text", "nullable": true}
+    ]
+}
+
+##########################################################
+### Drop Table
+DELETE {{baseUrl}}/connections/{{connectionId}}/tables/demo_table
+Accept: application/json
+Authorization: {{token}}

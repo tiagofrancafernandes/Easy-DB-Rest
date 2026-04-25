@@ -199,6 +199,81 @@ curl -X POST http://127.0.0.1:8000/api/teams/{team_uuid}/members \
     }'
 ```
 
+---
+
+## 5. Schema & Table Management
+
+### Create a New Table
+```bash
+curl -X POST http://127.0.0.1:8000/api/connections/{uuid}/tables \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "table": "products",
+        "columns": [
+            {"name": "id", "type": "id"},
+            {"name": "sku", "type": "string", "nullable": false},
+            {"name": "price", "type": "decimal", "args": [10, 2]},
+            {"name": "description", "type": "text", "nullable": true}
+        ]
+    }'
+```
+
+### Alter an Existing Table
+```bash
+curl -X PUT http://127.0.0.1:8000/api/connections/{uuid}/tables/products \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "add": [
+            {"name": "stock", "type": "integer", "default": 0}
+        ],
+        "rename": {
+            "description": "about"
+        },
+        "drop": ["old_col"]
+    }'
+```
+
+### Get Table Structure
+```bash
+curl -X GET http://127.0.0.1:8000/api/connections/{uuid}/tables/products \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here"
+```
+
+### Create a Database
+```bash
+curl -X POST http://127.0.0.1:8000/api/connections/{uuid}/databases \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "name": "new_service_db"
+    }'
+```
+
+### Create a View
+```bash
+curl -X POST http://127.0.0.1:8000/api/connections/{uuid}/views \
+    -H "Accept: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here" \
+    -d '{
+        "name": "active_users_view",
+        "query": "SELECT * FROM users WHERE active = 1"
+    }'
+```
+
+### List Views
+```bash
+curl -X GET http://127.0.0.1:8000/api/connections/{uuid}/views \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer Your-Auth-Token-Here"
+```
+
 ### Create a PostgreSQL Connection via URL
 ```bash
 curl -X POST http://127.0.0.1:8000/api/connections \

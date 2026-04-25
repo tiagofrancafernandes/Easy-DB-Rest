@@ -44,6 +44,11 @@ class ConnectionManager
         return $this->register($dto);
     }
 
+    public function resolveConfig(string $configId, array $overrides = []): ConnectionConfigDto
+    {
+        return $this->buildDto($configId, null, $overrides);
+    }
+
     protected function buildDto(
         ?string $configId,
         ?array $inlineConfig,
