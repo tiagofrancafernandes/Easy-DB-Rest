@@ -1,0 +1,46 @@
+{
+    "name": "easy-db-console",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "vite": "vite",
+        "build": "vue-tsc && vite build",
+        "open-in-editor-server": "node open-in-editor-server.js",
+        "dev:open-in-editor-server": "node open-in-editor-server.js",
+        "dev:with-editor-server": "npx concurrently -n vite,editor-server -c blue,green \"npm:vite\" \"npm:open-in-editor-server\"",
+        "dev": "npm run dev:with-editor-server",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@iconify/vue": "^5.0.0",
+        "@tailwindcss/forms": "^0.5.11",
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4.2.4",
+        "concurrently": "^9.0.1",
+        "iconify-icon": "^2.1.0",
+        "postcss": "^8.4.31",
+        "prettier": "^3.8.3",
+        "sprintf-js": "^1.1.3",
+        "tailwindcss": "^4.2.4",
+        "vue": "^3.5.12",
+        "vue-i18n": "^11.3.2",
+        "vue-router": "^5.0.6",
+        "vue3-toastify": "^0.2.9"
+    },
+    "devDependencies": {
+        "@types/node": "^22.8.1",
+        "@types/sprintf-js": "^1.1.4",
+        "@vitejs/plugin-vue": "^6.0.6",
+        "@vue/tsconfig": "^0.9.1",
+        "autoprefixer": "^10.4.20",
+        "jsdom": "^29.0.2",
+        "postcss": "^8.4.47",
+        "prettier": "^3.8.3",
+        "typescript": "^5.6.3",
+        "vite": "^7.0.7",
+        "vite-plugin-vue-devtools": "^8.1.1",
+        "vite-plugin-vue-inspector": "^5.4.0",
+        "vue-tsc": "^2.1.10"
+    }
+}
