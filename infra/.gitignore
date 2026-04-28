@@ -1,0 +1,7 @@
+!nginx
+!.gitignore
+!*.example*
+
+*.local.*
+*.local
+local.*
