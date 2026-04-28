@@ -25,6 +25,15 @@ class TableController extends Controller
         Gate::authorize('view', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+        
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+        
+        if ($request->has('schema')) {
+            $config = $config->with(['schema' => $request->input('schema')]);
+        }
+
         $tables = $this->schemaManager->listTables($config);
 
         return response()->json(['data' => $tables]);
@@ -35,6 +44,15 @@ class TableController extends Controller
         Gate::authorize('view', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+        
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+        
+        if ($request->has('schema')) {
+            $config = $config->with(['schema' => $request->input('schema')]);
+        }
+
         $details = $this->schemaManager->getTableDetails($config, $table);
 
         return response()->json(['data' => $details]);
@@ -52,6 +70,15 @@ class TableController extends Controller
         ]);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+        
+        if ($request->has('schema')) {
+            $config = $config->with(['schema' => $request->input('schema')]);
+        }
+
         $this->schemaManager->createTable(
             $config,
             $request->string('table')->toString(),
@@ -73,6 +100,15 @@ class TableController extends Controller
         ]);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+        
+        if ($request->has('schema')) {
+            $config = $config->with(['schema' => $request->input('schema')]);
+        }
+
         $this->schemaManager->alterTable($config, $table, $request->all());
 
         return response()->json(['message' => 'Table altered successfully']);
@@ -83,6 +119,15 @@ class TableController extends Controller
         Gate::authorize('update', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+        
+        if ($request->has('schema')) {
+            $config = $config->with(['schema' => $request->input('schema')]);
+        }
+
         $this->schemaManager->dropTable($config, $table);
 
         return response()->json(['message' => 'Table dropped successfully']);

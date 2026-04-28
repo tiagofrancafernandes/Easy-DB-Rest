@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConnectionController;
 use App\Http\Controllers\Api\DatabaseController;
 use App\Http\Controllers\Api\HealthController;
@@ -15,10 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class);
 Route::get('/health', HealthController::class);
 
+Route::post('/login', [AuthController::class, 'login']);
+
 // Public Snippet Route
 Route::get('/snippets/{user_id}/{slug}', [SnippetController::class, 'publicView']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('connections', ConnectionController::class);
     Route::post('connection/test', [QueryController::class, 'test']);
     Route::post('connections/{connection}/share', [ConnectionController::class, 'share']);
@@ -38,6 +42,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('tables/{table}', [TableController::class, 'show']);
         Route::put('tables/{table}', [TableController::class, 'update']);
         Route::delete('tables/{table}', [TableController::class, 'destroy']);
+
+        // Table Data Routes
+        Route::get('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'index']);
+        Route::post('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'store']);
+        Route::put('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'update']);
+        Route::delete('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'destroy']);
 
         Route::get('views', [ViewController::class, 'index']);
         Route::post('views', [ViewController::class, 'store']);

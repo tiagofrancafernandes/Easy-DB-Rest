@@ -25,6 +25,11 @@ class SchemaController extends Controller
         Gate::authorize('view', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+        
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+
         $schemas = $this->schemaManager->listSchemas($config);
 
         return response()->json(['data' => $schemas]);
@@ -39,6 +44,11 @@ class SchemaController extends Controller
         ]);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+
         $this->schemaManager->createSchema($config, $request->string('name')->toString());
 
         return response()->json(['message' => 'Schema created successfully'], 201);
@@ -49,6 +59,11 @@ class SchemaController extends Controller
         Gate::authorize('update', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
+
+        if ($request->has('database')) {
+            $config = $config->with(['database' => $request->input('database')]);
+        }
+
         $this->schemaManager->dropSchema($config, $name);
 
         return response()->json(['message' => 'Schema dropped successfully']);

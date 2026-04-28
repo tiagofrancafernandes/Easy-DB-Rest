@@ -28,6 +28,27 @@ final class ConnectionConfigDto
     ) {
     }
 
+    public function with(array $data): self
+    {
+        return new self(
+            driver:      $data['driver'] ?? $this->driver,
+            database:    $data['database'] ?? $this->database,
+            host:        $data['host'] ?? $this->host,
+            port:        $data['port'] ?? $this->port,
+            username:    $data['username'] ?? $this->username,
+            password:    $data['password'] ?? $this->password,
+            schema:      $data['schema'] ?? $this->schema,
+            timeout:     $data['timeout'] ?? $this->timeout,
+            options:     $data['options'] ?? $this->options,
+            url:         $data['url'] ?? $this->url,
+            charset:     $data['charset'] ?? $this->charset,
+            collation:   $data['collation'] ?? $this->collation,
+            prefix:      $data['prefix'] ?? $this->prefix,
+            search_path: $data['search_path'] ?? $this->search_path,
+            sslmode:     $data['sslmode'] ?? $this->sslmode,
+        );
+    }
+
     public static function fromModel(Connection $connection): static
     {
         return new static(
@@ -122,6 +143,8 @@ final class ConnectionConfigDto
 
         if ($this->search_path) {
             $config['search_path'] = $this->search_path;
+        } elseif ($this->driver === SupportedDriver::Pgsql && $this->schema) {
+            $config['search_path'] = $this->schema;
         }
 
         if ($this->sslmode) {

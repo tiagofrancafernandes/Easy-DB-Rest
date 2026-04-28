@@ -2,10 +2,14 @@
 import { ref } from 'vue';
 import { Icon } from '@iconify/vue';
 import { useRouter } from 'vue-router';
+import { apiClient } from '@/api/client';
+import { useToast } from '@/composables/useToast';
 
 const router = useRouter();
-const email = ref('');
-const password = ref('');
+const toast = useToast();
+
+const email = ref('admin@mail.com');
+const password = ref('power@123');
 const isLoading = ref(false);
 const error = ref('');
 
@@ -14,12 +18,21 @@ const handleLogin = async () => {
     error.value = '';
 
     try {
-        // Mocking login for now
-        // In a real app, this would call the API
-        localStorage.setItem('easy_db_token', 'mock_token_123');
+        const response = await apiClient<{ token: string }>('/login', {
+            method: 'POST',
+            body: JSON.stringify({
+                email: email.value,
+                password: password.value,
+                device_name: 'web_console',
+            }),
+        });
+
+        localStorage.setItem('easy_db_token', response.token);
+        toast.success('Welcome back! Login successful.');
         router.push('/');
     } catch (e: any) {
         error.value = e.message || 'Login failed';
+        toast.error(error.value);
     } finally {
         isLoading.value = false;
     }

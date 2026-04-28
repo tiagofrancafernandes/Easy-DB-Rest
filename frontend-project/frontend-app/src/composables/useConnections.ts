@@ -9,6 +9,8 @@ export interface Connection {
     port: number;
     database: string;
     username: string;
+    password?: string;
+    created_at: string;
 }
 
 const connections = ref<Connection[]>([]);
@@ -19,35 +21,66 @@ export function useConnections() {
     async function fetchConnections() {
         isLoading.value = true;
         try {
-            // In a real app: connections.value = await apiClient<Connection[]>('/connections')
-            // For now, using mock data matching DashboardView
-            connections.value = [
-                {
-                    id: '1',
-                    name: 'billing-microservice-db',
-                    driver: 'postgres',
-                    host: 'localhost',
-                    port: 5432,
-                    database: 'billing',
-                    username: 'admin',
-                },
-                {
-                    id: '2',
-                    name: 'auth-production-db',
-                    driver: 'mysql',
-                    host: 'localhost',
-                    port: 3306,
-                    database: 'auth',
-                    username: 'root',
-                },
-            ];
+            const response = await apiClient<{ data: Connection[] }>('/connections');
+            connections.value = response.data;
+        } catch (error) {
+            console.error('Failed to fetch connections', error);
+            throw error;
         } finally {
             isLoading.value = false;
         }
     }
 
-    function setCurrentConnection(connection: Connection) {
-        currentConnection.value = connection;
+    async function fetchConnection(id: string) {
+        isLoading.value = true;
+        try {
+            const response = await apiClient<{ data: Connection }>(`/connections/${id}`);
+            currentConnection.value = response.data;
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to fetch connection ${id}`, error);
+            throw error;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    async function createConnection(data: Partial<Connection>) {
+        isLoading.value = true;
+        try {
+            const response = await apiClient<{ data: Connection }>('/connections', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+            await fetchConnections();
+            return response.data;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    async function updateConnection(id: string, data: Partial<Connection>) {
+        isLoading.value = true;
+        try {
+            const response = await apiClient<{ data: Connection }>(`/connections/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data),
+            });
+            await fetchConnections();
+            return response.data;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    async function deleteConnection(id: string) {
+        isLoading.value = true;
+        try {
+            await apiClient(`/connections/${id}`, { method: 'DELETE' });
+            await fetchConnections();
+        } finally {
+            isLoading.value = false;
+        }
     }
 
     return {
@@ -55,6 +88,9 @@ export function useConnections() {
         currentConnection,
         isLoading,
         fetchConnections,
-        setCurrentConnection,
+        fetchConnection,
+        createConnection,
+        updateConnection,
+        deleteConnection,
     };
 }
