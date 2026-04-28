@@ -1,5 +1,6 @@
-@baseUrl = http://localhost:8000/api
-@token = Bearer Your-Auth-Token-Here
+@baseUrl = https://local.easydbrest.com/api
+# @baseUrl = http://localhost:8000/api
+@token = Your-Auth-Token-Here
 @connectionId = 1
 @snippetId = 019dc662-8772-710c-99f5-468843f153b7
 @teamId = 019dc662-d29a-730c-9876-468843f153b7
@@ -14,20 +15,21 @@
 ### List All Connections
 GET {{baseUrl}}/connections
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Get Connection Info
 GET {{baseUrl}}/connections/{{connectionId}}
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Create a new MySQL Connection (Advanced)
 POST {{baseUrl}}/connections
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "name": "E-Commerce Stats DB",
@@ -47,7 +49,8 @@ Authorization: {{token}}
 POST {{baseUrl}}/connections/{{connectionId}}/share
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "team_id": "{{teamId}}",
@@ -63,14 +66,15 @@ Authorization: {{token}}
 ### List Snippets
 GET {{baseUrl}}/snippets
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Create Snippet
 POST {{baseUrl}}/snippets
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "name": "queries/active_users.sql",
@@ -96,7 +100,8 @@ Accept: text/plain
 POST {{baseUrl}}/snippets/{{snippetId}}/share
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "team_id": "{{teamId}}",
@@ -112,14 +117,15 @@ Authorization: {{token}}
 ### List Teams
 GET {{baseUrl}}/teams
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Create Team
 POST {{baseUrl}}/teams
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "name": "Backend Team"
@@ -130,7 +136,8 @@ Authorization: {{token}}
 POST {{baseUrl}}/teams/{{teamId}}/members
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "user_id": "{{userId}}"
@@ -145,14 +152,15 @@ Authorization: {{token}}
 ### List Databases
 GET {{baseUrl}}/connections/{{connectionId}}/databases
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Create Database
 POST {{baseUrl}}/connections/{{connectionId}}/databases
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "name": "new_app_db"
@@ -162,7 +170,7 @@ Authorization: {{token}}
 ### List Schemas (PostgreSQL/SQL Server)
 GET {{baseUrl}}/connections/{{connectionId}}/schemas
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### --------------------------------------------------------
@@ -173,14 +181,15 @@ Authorization: {{token}}
 ### List Tables
 GET {{baseUrl}}/connections/{{connectionId}}/tables
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Create Table
 POST {{baseUrl}}/connections/{{connectionId}}/tables
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "table": "tasks",
@@ -196,14 +205,15 @@ Authorization: {{token}}
 ### Get Table Details
 GET {{baseUrl}}/connections/{{connectionId}}/tables/tasks
 Accept: application/json
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 ##########################################################
 ### Alter Table
 PUT {{baseUrl}}/connections/{{connectionId}}/tables/tasks
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 
 {
     "add": [
@@ -224,8 +234,9 @@ Authorization: {{token}}
 POST {{baseUrl}}/query
 Accept: application/json
 Content-Type: application/json
+Precognition: true
 X-Config-ID: {{connectionId}}
-Authorization: {{token}}
+Authorization: Bearer {{token}}
 
 {
     "type": "raw",
@@ -245,7 +256,8 @@ Authorization: {{token}}
 POST {{baseUrl}}/query
 Accept: application/json
 Content-Type: application/json
-Authorization: {{token}}
+Precognition: true
+Authorization: Bearer {{token}}
 X-Config-ID: {{connectionId}}
 
 {
@@ -261,4 +273,17 @@ X-Config-ID: {{connectionId}}
             "args": [5]
         }
     ]
+}
+
+##########################################################
+### Login request
+POST {{baseUrl}}/login
+Accept: application/json
+Content-Type: application/json
+Precognition: true
+
+{
+    "email": "user@mail.com",
+    "password": "password",
+    "device_name": "my device name"
 }

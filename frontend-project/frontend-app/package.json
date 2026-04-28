@@ -19,6 +19,7 @@
         "@tailwindcss/vite": "^4.2.4",
         "concurrently": "^9.0.1",
         "iconify-icon": "^2.1.0",
+        "laravel-precognition-vue": "^2.0.0",
         "postcss": "^8.4.31",
         "prettier": "^3.8.3",
         "sprintf-js": "^1.1.3",
