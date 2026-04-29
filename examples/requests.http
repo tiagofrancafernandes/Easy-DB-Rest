@@ -45,6 +45,19 @@ Authorization: Bearer {{token}}
 }
 
 ##########################################################
+### Test Connection
+POST {{baseUrl}}/connection/test
+Accept: application/json
+Content-Type: application/json
+Precognition: true
+X-Config-ID: {{connectionId}}
+Authorization: Bearer {{token}}
+
+{
+    "overrides": {}
+}
+
+##########################################################
 ### Share Connection with Team
 POST {{baseUrl}}/connections/{{connectionId}}/share
 Accept: application/json
@@ -164,6 +177,27 @@ Authorization: Bearer {{token}}
 
 {
     "name": "new_app_db"
+}
+
+##########################################################
+### Alter Connection
+PUT {{baseUrl}}/connections/{{connectionId}}
+Accept: application/json
+Content-Type: application/json
+Precognition: true
+Authorization: Bearer {{token}}
+
+{
+    "name": "New connection name",
+    "driver": "mysql",
+    "host": "db.production.local",
+    "port": 3307,
+    "database": "ecommerce_metrics",
+    "username": "analytics_user",
+    "password": "secure_password_in_base64",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_unicode_ci",
+    "tags": ["production", "analytics", "mysql"]
 }
 
 ##########################################################
