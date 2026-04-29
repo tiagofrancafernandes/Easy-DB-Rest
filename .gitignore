@@ -22,6 +22,33 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+**/**/node_modules
+
+## BEGIN Front-end app
+frontend-project/**/node_modules
+frontend-project/frontend-app/node_modules
+
+## Logs
+frontend-project/frontend-app/logs
+frontend-project/frontend-app/*.log
+frontend-project/frontend-app/npm-debug.log*
+frontend-project/frontend-app/yarn-debug.log*
+frontend-project/frontend-app/yarn-error.log*
+frontend-project/frontend-app/pnpm-debug.log*
+frontend-project/frontend-app/lerna-debug.log*
+
+frontend-project/frontend-app/node_modules
+frontend-project/frontend-app/dist
+frontend-project/frontend-app/dist-ssr
+frontend-project/frontend-app/*.local
+
+frontend-project/frontend-app/dist/
+frontend-project/frontend-app/dist_tmp_build/
+frontend-project/frontend-app/.vite/
+## END Front-end app
+
+
 *no*commit*
 # *No*Commit*
 *NoCommit*.*
