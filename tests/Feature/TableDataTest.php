@@ -38,7 +38,7 @@ class TableDataTest extends TestCase
     }
 
     #[Test]
-    public function it_can_insert_and_retrieve_table_data(): void
+    public function itCanInsertAndRetrieveTableData(): void
     {
         $user = User::factory()->create();
         $connection = Connection::factory()->create([
@@ -78,7 +78,7 @@ class TableDataTest extends TestCase
     }
 
     #[Test]
-    public function it_handles_pagination(): void
+    public function itHandlesPagination(): void
     {
         $user = User::factory()->create();
         $connection = Connection::factory()->create([
@@ -101,7 +101,7 @@ class TableDataTest extends TestCase
         // Insert 3 records
         for ($i = 1; $i <= 3; $i++) {
             $this->postJson("/api/connections/{$connection->id}/tables/logs/data", [
-                'data' => ['message' => "Log $i"],
+                'data' => ['message' => "Log {$i}"],
             ])->assertCreated();
         }
 
