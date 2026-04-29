@@ -25,7 +25,7 @@ class SchemaController extends Controller
         Gate::authorize('view', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }

@@ -25,11 +25,11 @@ class TableController extends Controller
         Gate::authorize('view', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
-        
+
         if ($request->has('schema')) {
             $config = $config->with(['schema' => $request->input('schema')]);
         }
@@ -44,11 +44,11 @@ class TableController extends Controller
         Gate::authorize('view', $connection);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
-        
+
         if ($request->has('schema')) {
             $config = $config->with(['schema' => $request->input('schema')]);
         }
@@ -74,7 +74,7 @@ class TableController extends Controller
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
-        
+
         if ($request->has('schema')) {
             $config = $config->with(['schema' => $request->input('schema')]);
         }
@@ -104,7 +104,7 @@ class TableController extends Controller
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
-        
+
         if ($request->has('schema')) {
             $config = $config->with(['schema' => $request->input('schema')]);
         }
@@ -123,7 +123,7 @@ class TableController extends Controller
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
-        
+
         if ($request->has('schema')) {
             $config = $config->with(['schema' => $request->input('schema')]);
         }

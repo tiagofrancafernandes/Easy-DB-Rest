@@ -35,7 +35,7 @@ class QueryExecutorService
         return $this->builderExecutor->execute($connection, $configDto, $payload);
     }
 
-    public function testConnection(?string $configId, ?array $inlineConnection, array $overrides = []): bool
+    public function testConnection(?string $configId = null, ?array $inlineConnection = null, array $overrides = []): bool
     {
         $connection = $this->connectionManager->resolveFromRequest($configId, $inlineConnection, $overrides);
 

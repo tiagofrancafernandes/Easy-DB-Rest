@@ -36,7 +36,7 @@ class TableDataService
     {
         $connection = $this->getConnection($config);
         $tableName = isset($options['schema']) ? $options['schema'] . '.' . $table : $table;
-        
+
         return $connection->table($tableName)->insert($data);
     }
 
@@ -44,7 +44,7 @@ class TableDataService
     {
         $connection = $this->getConnection($config);
         $tableName = isset($options['schema']) ? $options['schema'] . '.' . $table : $table;
-        
+
         return (bool) $connection->table($tableName)->where($pk)->update($data);
     }
 
@@ -52,7 +52,7 @@ class TableDataService
     {
         $connection = $this->getConnection($config);
         $tableName = isset($options['schema']) ? $options['schema'] . '.' . $table : $table;
-        
+
         return (bool) $connection->table($tableName)->where($pk)->delete();
     }
 
@@ -60,6 +60,7 @@ class TableDataService
     {
         $connectionName = 'dynamic_data_' . Str::uuid()->toString();
         config(["database.connections.{$connectionName}" => $config->toLaravelConfig()]);
+
         return DB::connection($connectionName);
     }
 }

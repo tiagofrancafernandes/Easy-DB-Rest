@@ -30,7 +30,7 @@ class TableDataController extends Controller
         $database = $request->query('database');
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($database) {
             $config = $config->with(['database' => $database]);
         }
@@ -53,14 +53,14 @@ class TableDataController extends Controller
         ]);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
 
         $success = $this->tableDataService->insertRecord(
-            $config, 
-            $table, 
+            $config,
+            $table,
             $request->input('data'),
             ['schema' => $request->input('schema')]
         );
@@ -84,14 +84,14 @@ class TableDataController extends Controller
         ]);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
 
         $success = $this->tableDataService->updateRecord(
-            $config, 
-            $table, 
+            $config,
+            $table,
             $request->input('pk'),
             $request->input('data'),
             ['schema' => $request->input('schema')]
@@ -110,7 +110,7 @@ class TableDataController extends Controller
         ]);
 
         $config = $this->connectionManager->resolveConfig($connection->id);
-        
+
         if ($request->has('database')) {
             $config = $config->with(['database' => $request->input('database')]);
         }
@@ -123,8 +123,8 @@ class TableDataController extends Controller
         }
 
         $this->tableDataService->deleteRecord(
-            $config, 
-            $table, 
+            $config,
+            $table,
             $pk,
             ['schema' => $request->input('schema')]
         );
