@@ -44,10 +44,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('tables/{table}', [TableController::class, 'destroy']);
 
         // Table Data Routes
-        Route::get('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'index']);
-        Route::post('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'store']);
-        Route::put('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'update']);
-        Route::delete('tables/{table}/data', [\App\Http\Controllers\Api\TableDataController::class, 'destroy']);
+        Route::get('tables/{table}/data', [App\Http\Controllers\Api\TableDataController::class, 'index']);
+        Route::post('tables/{table}/data', [App\Http\Controllers\Api\TableDataController::class, 'store']);
+        Route::put('tables/{table}/data', [App\Http\Controllers\Api\TableDataController::class, 'update']);
+        Route::delete('tables/{table}/data', [App\Http\Controllers\Api\TableDataController::class, 'destroy']);
 
         Route::get('views', [ViewController::class, 'index']);
         Route::post('views', [ViewController::class, 'store']);

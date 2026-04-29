@@ -82,7 +82,7 @@ onUnmounted(() => window.removeEventListener('click', closeAllMenus));
         <div class="flex items-center gap-3">
             <!-- Connection Search / Selector -->
             <div class="relative search-container">
-                <div 
+                <div
                     class="relative flex items-center bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 w-72 transition-all"
                     :class="[isSearchOpen ? 'border-emerald-400/50 ring-1 ring-emerald-400/20' : '']"
                 >
@@ -112,17 +112,22 @@ onUnmounted(() => window.removeEventListener('click', closeAllMenus));
                     >
                         <div class="p-2 border-b border-zinc-900">
                             <button
-                                @click="router.push('/connections/new'); isSearchOpen = false"
+                                @click="
+                                    router.push('/connections/new');
+                                    isSearchOpen = false;
+                                "
                                 class="w-full flex items-center gap-3 px-3 py-2 text-xs font-bold text-emerald-400 hover:bg-zinc-900 rounded-sm transition-colors"
                             >
                                 <Icon icon="tabler:plus" class="text-lg" />
                                 ADD NEW CONNECTION
                             </button>
                         </div>
-                        
+
                         <div class="max-h-64 overflow-y-auto py-1">
                             <div v-if="!filteredConnections.length" class="px-4 py-4 text-center">
-                                <p class="text-[10px] uppercase font-black text-zinc-600 tracking-widest">No connections found</p>
+                                <p class="text-[10px] uppercase font-black text-zinc-600 tracking-widest">
+                                    No connections found
+                                </p>
                             </div>
                             <button
                                 v-for="conn in filteredConnections"
@@ -131,16 +136,25 @@ onUnmounted(() => window.removeEventListener('click', closeAllMenus));
                                 class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-zinc-900 group transition-all"
                             >
                                 <div class="flex items-center gap-3">
-                                    <Icon 
-                                        :icon="conn.driver === 'postgres' ? 'tabler:brand-postgresql' : 'tabler:database'" 
-                                        class="text-lg text-zinc-500 group-hover:text-emerald-400" 
+                                    <Icon
+                                        :icon="
+                                            conn.driver === 'postgres' ? 'tabler:brand-postgresql' : 'tabler:database'
+                                        "
+                                        class="text-lg text-zinc-500 group-hover:text-emerald-400"
                                     />
                                     <div>
-                                        <p class="text-xs font-bold text-zinc-300 group-hover:text-on-surface">{{ conn.name }}</p>
-                                        <p class="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{{ conn.driver }}</p>
+                                        <p class="text-xs font-bold text-zinc-300 group-hover:text-on-surface">
+                                            {{ conn.name }}
+                                        </p>
+                                        <p class="text-[9px] text-zinc-600 uppercase font-black tracking-widest">
+                                            {{ conn.driver }}
+                                        </p>
                                     </div>
                                 </div>
-                                <Icon icon="tabler:arrow-right" class="text-zinc-800 group-hover:text-emerald-400 transition-all opacity-0 group-hover:opacity-100" />
+                                <Icon
+                                    icon="tabler:arrow-right"
+                                    class="text-zinc-800 group-hover:text-emerald-400 transition-all opacity-0 group-hover:opacity-100"
+                                />
                             </button>
                         </div>
                     </div>

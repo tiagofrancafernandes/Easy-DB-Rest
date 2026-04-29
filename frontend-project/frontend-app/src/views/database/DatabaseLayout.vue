@@ -61,9 +61,8 @@ watch([currentDatabase, currentSchema], async () => {
 
 const filteredTables = computed(() => {
     if (!searchQuery.value) return tables.value;
-    return tables.value.filter(t => t.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+    return tables.value.filter((t) => t.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
 });
-
 </script>
 
 <template>
@@ -74,12 +73,16 @@ const filteredTables = computed(() => {
             <div class="p-6 border-b border-zinc-800 bg-zinc-900/20">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-emerald-500/50 transition-all">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-emerald-500/50 transition-all"
+                        >
                             <Icon icon="tabler:database" class="text-xl text-emerald-400" />
                         </div>
                         <div>
                             <h2 class="text-sm font-bold text-white tracking-tight">{{ currentConnection?.name }}</h2>
-                            <p class="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">{{ currentConnection?.driver }}</p>
+                            <p class="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">
+                                {{ currentConnection?.driver }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -87,7 +90,9 @@ const filteredTables = computed(() => {
                 <!-- Database/Schema Selectors -->
                 <div class="space-y-4">
                     <div class="space-y-1.5 group">
-                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Database</label>
+                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">
+                            Database
+                        </label>
                         <div class="relative">
                             <select
                                 :value="currentDatabase"
@@ -96,12 +101,20 @@ const filteredTables = computed(() => {
                             >
                                 <option v-for="db in databases" :key="db" :value="db">{{ db }}</option>
                             </select>
-                            <Icon icon="tabler:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none group-hover:text-zinc-300" />
+                            <Icon
+                                icon="tabler:chevron-down"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none group-hover:text-zinc-300"
+                            />
                         </div>
                     </div>
 
-                    <div v-if="schemas.length" class="space-y-1.5 group animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Schema</label>
+                    <div
+                        v-if="schemas.length"
+                        class="space-y-1.5 group animate-in fade-in slide-in-from-top-2 duration-300"
+                    >
+                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">
+                            Schema
+                        </label>
                         <div class="relative">
                             <select
                                 :value="currentSchema"
@@ -110,7 +123,10 @@ const filteredTables = computed(() => {
                             >
                                 <option v-for="s in schemas" :key="s" :value="s">{{ s }}</option>
                             </select>
-                            <Icon icon="tabler:chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none group-hover:text-zinc-300" />
+                            <Icon
+                                icon="tabler:chevron-down"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none group-hover:text-zinc-300"
+                            />
                         </div>
                     </div>
                 </div>
@@ -118,7 +134,10 @@ const filteredTables = computed(() => {
                 <!-- Search \u0026 Add Table -->
                 <div class="flex gap-2 mt-6">
                     <div class="relative flex-1 group">
-                        <Icon icon="tabler:search" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm group-focus-within:text-emerald-400" />
+                        <Icon
+                            icon="tabler:search"
+                            class="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm group-focus-within:text-emerald-400"
+                        />
                         <input
                             v-model="searchQuery"
                             class="w-full bg-zinc-900 border border-zinc-800 rounded pl-8 pr-2 py-1.5 text-xs text-on-surface focus:outline-none focus:border-emerald-500/50 transition-colors placeholder:text-zinc-600"
@@ -151,7 +170,11 @@ const filteredTables = computed(() => {
                         :key="table.name"
                         :to="`/c/${connectionId}/tables/${table.name}`"
                         class="flex items-center gap-3 px-3 py-2 rounded text-xs transition-all group"
-                        :class="[route.params.tableName === table.name ? 'bg-emerald-500/10 text-emerald-400 font-bold border-l-2 border-emerald-500' : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300']"
+                        :class="[
+                            route.params.tableName === table.name
+                                ? 'bg-emerald-500/10 text-emerald-400 font-bold border-l-2 border-emerald-500'
+                                : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300',
+                        ]"
                     >
                         <Icon icon="tabler:table" class="text-base opacity-40 group-hover:opacity-100" />
                         <span class="truncate flex-1">{{ table.name }}</span>
@@ -162,7 +185,7 @@ const filteredTables = computed(() => {
 
             <!-- Team / Settings Footer -->
             <div class="p-4 border-t border-zinc-800 bg-zinc-950">
-                <button 
+                <button
                     @click="router.push(`/c/${connectionId}/settings`)"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded text-xs text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300 transition-all"
                 >
@@ -175,10 +198,7 @@ const filteredTables = computed(() => {
         <!-- Main View -->
         <main class="flex-1 flex flex-col relative overflow-hidden bg-zinc-950">
             <router-view v-slot="{ Component }">
-                <transition
-                    name="fade"
-                    mode="out-in"
-                >
+                <transition name="fade" mode="out-in">
                     <component :is="Component" />
                 </transition>
             </router-view>

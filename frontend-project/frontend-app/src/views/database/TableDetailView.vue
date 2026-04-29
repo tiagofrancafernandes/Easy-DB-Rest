@@ -32,7 +32,7 @@ const loadTableInfo = async () => {
     try {
         const response = await dbHelper.value.fetchTableDetails(props.tableName);
         columns.value = response.data.columns;
-        
+
         if (activeTab.value === 'data') {
             await loadData();
         }
@@ -43,9 +43,9 @@ const loadTableInfo = async () => {
 
 const loadData = async () => {
     try {
-        const response = await dbHelper.value.fetchTableData(props.tableName, { 
-            limit: limit.value, 
-            offset: offset.value 
+        const response = await dbHelper.value.fetchTableData(props.tableName, {
+            limit: limit.value,
+            offset: offset.value,
         });
         tableData.value = response.data;
         totalRows.value = response.meta?.total || 0;
@@ -65,7 +65,7 @@ watch([limit, offset, activeTab], () => {
 const startAddRecord = () => {
     isAddingRecord.value = true;
     newRecord.value = {};
-    columns.value.forEach(col => {
+    columns.value.forEach((col) => {
         newRecord.value[col.name] = col.default || null;
     });
 };
@@ -83,12 +83,12 @@ const saveNewRecord = async () => {
 
 const getPK = (row: any) => {
     const pk: Record<string, any> = {};
-    const pkCols = columns.value.filter(c => c.isPk);
+    const pkCols = columns.value.filter((c) => c.isPk);
     if (pkCols.length > 0) {
-        pkCols.forEach(c => pk[c.name] = row[c.name]);
+        pkCols.forEach((c) => (pk[c.name] = row[c.name]));
     } else {
         // Fallback to all columns if no PK (risky but sometimes necessary)
-        columns.value.forEach(c => pk[c.name] = row[c.name]);
+        columns.value.forEach((c) => (pk[c.name] = row[c.name]));
     }
     return pk;
 };
@@ -96,20 +96,20 @@ const getPK = (row: any) => {
 const saveChanges = async () => {
     const indices = Object.keys(modifiedRows.value).map(Number);
     let successCount = 0;
-    
+
     for (const idx of indices) {
         try {
             const originalRow = tableData.value[idx];
             const updatedData = modifiedRows.value[idx];
             const pk = getPK(originalRow);
-            
+
             await dbHelper.value.updateRecord(props.tableName, pk, updatedData);
             successCount++;
         } catch (e: any) {
             toast.error(`Failed to update row ${idx + 1}: ${e.message}`);
         }
     }
-    
+
     if (successCount > 0) {
         toast.success(`${successCount} record(s) updated`);
         await loadData();
@@ -118,7 +118,7 @@ const saveChanges = async () => {
 
 const handleDelete = async (row: any) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
-    
+
     try {
         const pk = getPK(row);
         await dbHelper.value.deleteRecord(props.tableName, pk);
@@ -143,30 +143,43 @@ const handleCellEdit = (rowIndex: number, colName: string, value: any) => {
 };
 
 const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || isAddingRecord.value);
-
 </script>
 
 <template>
     <div class="h-full flex flex-col bg-background overflow-hidden">
         <!-- Header -->
-        <header class="h-14 flex items-center justify-between px-6 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0">
+        <header
+            class="h-14 flex items-center justify-between px-6 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0"
+        >
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-3">
                     <Icon icon="tabler:table" class="text-xl text-emerald-400" />
                     <h1 class="text-sm font-bold text-on-surface tracking-tight">{{ tableName }}</h1>
                 </div>
-                
+
                 <nav class="flex items-center gap-6">
                     <button
                         @click="activeTab = 'data'"
                         class="text-sm tracking-tight transition-colors pb-1"
-                        :class="[activeTab === 'data' ? 'text-emerald-400 font-semibold border-b-2 border-emerald-400' : 'text-zinc-500 hover:text-zinc-200']"
-                    >Data</button>
+                        :class="[
+                            activeTab === 'data'
+                                ? 'text-emerald-400 font-semibold border-b-2 border-emerald-400'
+                                : 'text-zinc-500 hover:text-zinc-200',
+                        ]"
+                    >
+                        Data
+                    </button>
                     <button
                         @click="activeTab = 'structure'"
                         class="text-sm tracking-tight transition-colors pb-1"
-                        :class="[activeTab === 'structure' ? 'text-emerald-400 font-semibold border-b-2 border-emerald-400' : 'text-zinc-500 hover:text-zinc-200']"
-                    >Structure</button>
+                        :class="[
+                            activeTab === 'structure'
+                                ? 'text-emerald-400 font-semibold border-b-2 border-emerald-400'
+                                : 'text-zinc-500 hover:text-zinc-200',
+                        ]"
+                    >
+                        Structure
+                    </button>
                 </nav>
             </div>
 
@@ -190,9 +203,9 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                     <Icon icon="tabler:plus" class="text-base" />
                     <span>Add Record</span>
                 </button>
-                
+
                 <div class="h-6 w-px bg-zinc-800"></div>
-                
+
                 <button
                     v-if="hasChanges"
                     @click="isAddingRecord ? saveNewRecord() : saveChanges()"
@@ -201,7 +214,7 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                     <Icon icon="tabler:save" class="text-base" />
                     <span>{{ isAddingRecord ? 'Save Record' : 'Save Changes' }}</span>
                 </button>
-                
+
                 <button
                     v-if="hasChanges"
                     @click="discardChanges"
@@ -255,8 +268,8 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                         <th class="w-12 px-3 py-2 border-r border-zinc-800 text-center">
                             <Icon icon="tabler:trash" class="text-zinc-700" />
                         </th>
-                        <th 
-                            v-for="col in columns" 
+                        <th
+                            v-for="col in columns"
                             :key="col.name"
                             class="px-4 py-2 border-r border-zinc-800 min-w-[150px] group cursor-default"
                         >
@@ -265,7 +278,9 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                                     <Icon v-if="col.isPk" icon="tabler:key" class="text-amber-400 text-[10px]" />
                                     <span class="text-zinc-200">{{ col.name }}</span>
                                 </div>
-                                <span class="text-[9px] text-zinc-600 font-sans italic opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span
+                                    class="text-[9px] text-zinc-600 font-sans italic opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
                                     {{ col.type }}
                                 </span>
                             </div>
@@ -284,26 +299,32 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                                 v-model="newRecord[col.name]"
                                 class="w-full bg-transparent border-none p-0 text-amber-200 focus:ring-0 text-xs placeholder:text-amber-400/20"
                                 :placeholder="col.default || 'NULL'"
-                                :disabled="col.isPk && (col.default?.includes('nextval') || col.extra?.includes('auto_increment'))"
+                                :disabled="
+                                    col.isPk &&
+                                    (col.default?.includes('nextval') || col.extra?.includes('auto_increment'))
+                                "
                             />
                         </td>
                         <td></td>
                     </tr>
 
                     <!-- DATA ROWS -->
-                    <tr 
-                        v-for="(row, idx) in tableData" 
+                    <tr
+                        v-for="(row, idx) in tableData"
                         :key="idx"
                         class="hover:bg-zinc-900/40 transition-colors group"
                         :class="{ 'bg-emerald-400/5': modifiedRows[idx] }"
                     >
                         <td class="px-3 py-2 border-r border-zinc-800/50 text-center">
-                            <button @click="handleDelete(row)" class="opacity-0 group-hover:opacity-100 p-1 text-zinc-700 hover:text-rose-500 transition-all">
+                            <button
+                                @click="handleDelete(row)"
+                                class="opacity-0 group-hover:opacity-100 p-1 text-zinc-700 hover:text-rose-500 transition-all"
+                            >
                                 <Icon icon="tabler:trash" />
                             </button>
                         </td>
-                        <td 
-                            v-for="col in columns" 
+                        <td
+                            v-for="col in columns"
                             :key="col.name"
                             class="px-4 py-2 border-r border-zinc-800/50 group/cell relative"
                             @dblclick="editingCell = { row: idx, col: col.name }"
@@ -319,14 +340,23 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                                 />
                             </div>
                             <div v-else class="flex items-center justify-between">
-                                <span 
-                                    v-if="row[col.name] === null && !modifiedRows[idx]?.[col.name]" 
+                                <span
+                                    v-if="row[col.name] === null && !modifiedRows[idx]?.[col.name]"
                                     class="text-zinc-700 italic text-[10px] uppercase tracking-widest"
-                                >NULL</span>
-                                <span v-else :class="[modifiedRows[idx]?.[col.name] !== undefined ? 'text-emerald-400' : 'text-zinc-400 group-hover:text-zinc-200']">
+                                >
+                                    NULL
+                                </span>
+                                <span
+                                    v-else
+                                    :class="[
+                                        modifiedRows[idx]?.[col.name] !== undefined
+                                            ? 'text-emerald-400'
+                                            : 'text-zinc-400 group-hover:text-zinc-200',
+                                    ]"
+                                >
                                     {{ modifiedRows[idx] ? modifiedRows[idx][col.name] : row[col.name] }}
                                 </span>
-                                <button 
+                                <button
                                     @click="editingCell = { row: idx, col: col.name }"
                                     class="opacity-0 group-hover/cell:opacity-100 p-1 text-zinc-700 hover:text-emerald-400 transition-all"
                                 >
@@ -345,11 +375,25 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                     <table class="w-full border-collapse text-left text-xs">
                         <thead>
                             <tr class="bg-zinc-800/50 border-b border-zinc-800">
-                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Column</th>
-                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Type</th>
-                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center">Nullable</th>
-                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Default</th>
-                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Actions</th>
+                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                                    Column
+                                </th>
+                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                                    Type
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center"
+                                >
+                                    Nullable
+                                </th>
+                                <th class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                                    Default
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right"
+                                >
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-800/50">
@@ -361,20 +405,30 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-zinc-950 border border-zinc-800 rounded text-[10px] font-mono text-emerald-400/80">
+                                    <span
+                                        class="px-2 py-1 bg-zinc-950 border border-zinc-800 rounded text-[10px] font-mono text-emerald-400/80"
+                                    >
                                         {{ col.type }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <Icon :icon="col.nullable ? 'tabler:check' : 'tabler:x'" :class="col.nullable ? 'text-emerald-500' : 'text-zinc-700'" class="mx-auto" />
+                                    <Icon
+                                        :icon="col.nullable ? 'tabler:check' : 'tabler:x'"
+                                        :class="col.nullable ? 'text-emerald-500' : 'text-zinc-700'"
+                                        class="mx-auto"
+                                    />
                                 </td>
                                 <td class="px-6 py-4 text-[10px] font-mono text-zinc-500">
                                     {{ col.default || 'NULL' }}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2">
-                                        <button class="p-1.5 text-zinc-600 hover:text-emerald-400 transition-colors"><Icon icon="tabler:edit" /></button>
-                                        <button class="p-1.5 text-zinc-600 hover:text-rose-500 transition-colors"><Icon icon="tabler:trash" /></button>
+                                        <button class="p-1.5 text-zinc-600 hover:text-emerald-400 transition-colors">
+                                            <Icon icon="tabler:edit" />
+                                        </button>
+                                        <button class="p-1.5 text-zinc-600 hover:text-rose-500 transition-colors">
+                                            <Icon icon="tabler:trash" />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -385,7 +439,9 @@ const hasChanges = computed(() => Object.keys(modifiedRows.value).length > 0 || 
         </div>
 
         <!-- Footer -->
-        <footer class="h-8 flex items-center justify-between px-4 border-t border-zinc-800 bg-zinc-900/50 text-[10px] font-black text-zinc-600 uppercase tracking-widest shrink-0">
+        <footer
+            class="h-8 flex items-center justify-between px-4 border-t border-zinc-800 bg-zinc-900/50 text-[10px] font-black text-zinc-600 uppercase tracking-widest shrink-0"
+        >
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

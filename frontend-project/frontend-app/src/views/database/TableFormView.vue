@@ -16,9 +16,7 @@ const columns = ref([
     { name: 'created_at', type: 'timestamp', nullable: true, primary: false },
 ]);
 
-const columnTypes = [
-    'id', 'string', 'integer', 'text', 'boolean', 'timestamp', 'date', 'decimal', 'json'
-];
+const columnTypes = ['id', 'string', 'integer', 'text', 'boolean', 'timestamp', 'date', 'decimal', 'json'];
 
 const addColumn = () => {
     columns.value.push({ name: '', type: 'string', nullable: true, primary: false });
@@ -45,10 +43,10 @@ const handleCreate = async () => {
             method: 'POST',
             body: JSON.stringify({
                 table: tableName.value,
-                columns: columns.value
-            })
+                columns: columns.value,
+            }),
         });
-        
+
         toast.success(`Table ${tableName.value} created successfully`);
         await fetchTables();
         router.push(`/c/${connectionId}/tables/${tableName.value}`);
@@ -62,9 +60,14 @@ const handleCreate = async () => {
 
 <template>
     <div class="h-full flex flex-col bg-background overflow-hidden">
-        <header class="h-14 flex items-center justify-between px-6 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0">
+        <header
+            class="h-14 flex items-center justify-between px-6 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0"
+        >
             <div class="flex items-center gap-3">
-                <button @click="router.back()" class="p-2 hover:bg-zinc-900 rounded text-zinc-500 hover:text-zinc-200 transition-all">
+                <button
+                    @click="router.back()"
+                    class="p-2 hover:bg-zinc-900 rounded text-zinc-500 hover:text-zinc-200 transition-all"
+                >
                     <Icon icon="tabler:arrow-left" class="text-xl" />
                 </button>
                 <h1 class="text-sm font-bold text-on-surface tracking-tight uppercase">New Table</h1>
@@ -75,7 +78,9 @@ const handleCreate = async () => {
             <div class="max-w-4xl mx-auto space-y-8">
                 <!-- Table Name -->
                 <section class="space-y-4">
-                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Table Name</label>
+                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                        Table Name
+                    </label>
                     <input
                         v-model="tableName"
                         type="text"
@@ -126,10 +131,18 @@ const handleCreate = async () => {
                                         </select>
                                     </td>
                                     <td class="p-2 text-center">
-                                        <input type="checkbox" v-model="col.primary" class="rounded border-zinc-800 bg-zinc-950 text-emerald-500" />
+                                        <input
+                                            type="checkbox"
+                                            v-model="col.primary"
+                                            class="rounded border-zinc-800 bg-zinc-950 text-emerald-500"
+                                        />
                                     </td>
                                     <td class="p-2 text-center">
-                                        <input type="checkbox" v-model="col.nullable" class="rounded border-zinc-800 bg-zinc-950 text-emerald-500" />
+                                        <input
+                                            type="checkbox"
+                                            v-model="col.nullable"
+                                            class="rounded border-zinc-800 bg-zinc-950 text-emerald-500"
+                                        />
                                     </td>
                                     <td class="p-2 text-right">
                                         <button

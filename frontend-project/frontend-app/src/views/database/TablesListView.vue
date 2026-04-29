@@ -92,7 +92,7 @@ const handleDeleteTable = async (tableName: string) => {
                             <td class="px-6 py-4 text-xs text-zinc-500">{{ table.rows?.toLocaleString() || '-' }}</td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <button 
+                                    <button
                                         @click.stop="handleDeleteTable(table.name)"
                                         class="p-1.5 text-zinc-600 hover:text-rose-400 transition-colors"
                                         title="Delete Table"

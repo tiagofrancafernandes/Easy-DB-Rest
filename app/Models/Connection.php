@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use PDOException;
+use Closure;
+use App\Services\QueryExecutorService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Tags\HasTags;
@@ -109,8 +112,8 @@ class Connection extends Model
     protected function casts(): array
     {
         return [
-            'host'    => 'string',
-            'port'    => 'integer',
+            'host' => 'string',
+            'port' => 'integer',
             'timeout' => 'integer',
             'options' => 'array',
             'password' => 'encrypted',
@@ -133,5 +136,69 @@ class Connection extends Model
         return $this->belongsToMany(Team::class, 'connection_team')
             ->withPivot('permission')
             ->withTimestamps();
+    }
+
+    /**
+     * @param array $overrides
+     * @param ?QueryExecutorService $executor
+     *
+     * @return bool
+     */
+    public function safeTest(
+        array $overrides = [],
+        ?QueryExecutorService $executor = null,
+    ): bool {
+        try {
+            return $this->test(overrides: $overrides, executor: $executor, catch: fn (mixed $v) => false);
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
+
+    /**
+     * @param array $overrides
+     * @param ?QueryExecutorService $executor
+     * @param Closure|bool|null $catch
+     *
+     * @return bool
+     *
+     * @throws PDOException
+     */
+    public function test(
+        array $overrides = [],
+        ?QueryExecutorService $executor = null,
+        Closure|bool|null $catch = null,
+    ): bool {
+        try {
+            $executor ??= app(QueryExecutorService::class);
+
+            if (isset($overrides['password'])) {
+                $overrides['password'] = is_string($overrides['password']) ? $overrides['password'] : null;
+            }
+
+            $executor->testConnection(
+                configId: $this->id,
+                inlineConnection: null,
+                overrides: $overrides,
+            );
+
+            return true;
+        } catch (\Throwable $th) {
+            if ($catch) {
+                try {
+                    $catch = is_a($catch, Closure::class) ? $catch : fn (mixed $v) => false;
+                    $catch($th);
+                } catch (\Throwable) {
+                }
+
+                return false;
+            }
+
+            if (!app()->environment(['prod', 'production']) && config('app.debug', false)) {
+                throw $th;
+            }
+
+            return false;
+        }
     }
 }

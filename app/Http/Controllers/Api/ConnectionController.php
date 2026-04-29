@@ -18,8 +18,23 @@ class ConnectionController extends Controller
 {
     use \Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
+        $request->validate([
+            'limit' => ['nullable', 'integer', 'min:1', 'max:300'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'page_name' => ['nullable', 'string'],
+        ]);
+
+        $limit = $request->integer('limit', 40);
+        $columns = (array) value(function () use ($request) {
+            $v = $request->input('columns', '*');
+
+            return array_filter(
+                array_map(fn ($i) => is_string($i) ? trim($i) : '', $v = is_array($v) ? $v : [$v])
+            );
+        });
+
         $user = Auth::user();
         $connections = Connection::query()
             ->where('user_id', $user->id)
@@ -27,7 +42,12 @@ class ConnectionController extends Controller
                 $query->whereHas('members', fn ($q) => $q->where('users.id', $user->id));
             })
             ->with(['user', 'tags'])
-            ->get();
+            ->paginate(
+                perPage: $limit,
+                columns: $columns ?: ['*'],
+                pageName: $request->integer('page_name', 'page'),
+                page: $request->integer('page'),
+            );
 
         return ConnectionResource::collection($connections);
     }
@@ -67,7 +87,11 @@ class ConnectionController extends Controller
         $tags = $data['tags'] ?? null;
         unset($data['tags']);
 
-        $connection->update($data);
+        $connection->fill($data);
+
+        if ($connection->isDirty()) {
+            $connection->save();
+        }
 
         if ($tags !== null) {
             $connection->syncTags($tags);

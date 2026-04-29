@@ -193,4 +193,116 @@ class ConnectionCrudTest extends TestCase
             ->assertJsonPath('data.url', $payload['url'])
             ->assertJsonPath('data.database', null);
     }
+
+    #[Test]
+    public function itSharesAConnectionWithATeam(): void
+    {
+        $owner = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $owner->id]);
+
+        // Create a team with owner as member
+        $team = \App\Models\Team::factory()->create();
+        $team->members()->attach($owner->id);
+
+        Sanctum::actingAs($owner);
+
+        $response = $this->postJson("/api/connections/{$connection->id}/share", [
+            'team_id' => $team->id,
+            'permission' => 'view',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('message', 'Connection shared successfully');
+
+        $this->assertTrue(
+            $connection->teams()->where('team_id', $team->id)->exists()
+        );
+
+        $this->assertEquals(
+            'view',
+            $connection->teams()->find($team->id)->pivot->permission
+        );
+    }
+
+    #[Test]
+    public function itUpdatesConnectionPermissionWhenSharing(): void
+    {
+        $owner = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $owner->id]);
+
+        $team = \App\Models\Team::factory()->create();
+        $team->members()->attach($owner->id);
+
+        // Attach with initial permission
+        $connection->teams()->attach($team->id, ['permission' => 'view']);
+
+        Sanctum::actingAs($owner);
+
+        // Update permission to edit
+        $response = $this->postJson("/api/connections/{$connection->id}/share", [
+            'team_id' => $team->id,
+            'permission' => 'edit',
+        ]);
+
+        $response->assertOk();
+
+        $this->assertEquals(
+            'edit',
+            $connection->teams()->find($team->id)->pivot->permission
+        );
+    }
+
+    #[Test]
+    public function itValidatesPermissionWhenSharing(): void
+    {
+        $owner = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $owner->id]);
+
+        $team = \App\Models\Team::factory()->create();
+        $team->members()->attach($owner->id);
+
+        Sanctum::actingAs($owner);
+
+        $response = $this->postJson("/api/connections/{$connection->id}/share", [
+            'team_id' => $team->id,
+            'permission' => 'invalid',
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    #[Test]
+    public function itRequiresTeamIdWhenSharing(): void
+    {
+        $owner = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $owner->id]);
+
+        Sanctum::actingAs($owner);
+
+        $response = $this->postJson("/api/connections/{$connection->id}/share", [
+            'permission' => 'view',
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    #[Test]
+    public function itChecksAuthorizationWhenSharing(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $connection = Connection::factory()->create(['user_id' => $owner->id]);
+
+        $team = \App\Models\Team::factory()->create();
+        $team->members()->attach($otherUser->id);
+
+        Sanctum::actingAs($otherUser);
+
+        $response = $this->postJson("/api/connections/{$connection->id}/share", [
+            'team_id' => $team->id,
+            'permission' => 'view',
+        ]);
+
+        $response->assertForbidden();
+    }
 }

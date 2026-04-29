@@ -26,8 +26,8 @@ class ConnectionManager
     }
 
     public function resolveFromRequest(
-        ?string $configId,
-        ?array $inlineConfig,
+        ?string $configId = null,
+        ?array $inlineConfig = null,
         array $overrides = [],
     ): DbConnection {
         $dto = $this->buildDto($configId, $inlineConfig, $overrides);
@@ -76,26 +76,38 @@ class ConnectionManager
             return $dto;
         }
 
-        $password = isset($overrides['password'])
-            ? (base64_decode($overrides['password'], strict: true) ?: $overrides['password'])
-            : $dto->password;
+        $password = value(function () use ($dto, $overrides) {
+            if (!isset($overrides['password'])) {
+                return $dto->password;
+            }
+
+            $pwd = $overrides['password'] ?? null;
+
+            if (is_string($pwd)) {
+                return strlen(trim($pwd)) > 150 && substr($pwd, 0, 2) === 'ey'
+                    ? (string) \App\Helpers\StringHelpers::modelDecrypt($pwd)
+                    : (base64_decode($pwd, strict: true) ?: $pwd);
+            }
+
+            return $dto->password;
+        });
 
         return new ConnectionConfigDto(
-            driver:      $dto->driver,
-            database:    $overrides['database'] ?? $dto->database,
-            host:        $overrides['host'] ?? $dto->host,
-            port:        isset($overrides['port']) ? (int) $overrides['port'] : $dto->port,
-            username:    $overrides['username'] ?? $dto->username,
-            password:    $password,
-            schema:      $overrides['schema'] ?? $dto->schema,
-            timeout:     isset($overrides['timeout']) ? (int) $overrides['timeout'] : $dto->timeout,
-            options:     $overrides['options'] ?? $dto->options,
-            url:         $overrides['url'] ?? $dto->url,
-            charset:     $overrides['charset'] ?? $dto->charset,
-            collation:   $overrides['collation'] ?? $dto->collation,
-            prefix:      $overrides['prefix'] ?? $dto->prefix,
+            driver: $dto->driver,
+            database: $overrides['database'] ?? $dto->database,
+            host: $overrides['host'] ?? $dto->host,
+            port: isset($overrides['port']) ? (int) $overrides['port'] : $dto->port,
+            username: $overrides['username'] ?? $dto->username,
+            password: $password,
+            schema: $overrides['schema'] ?? $dto->schema,
+            timeout: isset($overrides['timeout']) ? (int) $overrides['timeout'] : $dto->timeout,
+            options: $overrides['options'] ?? $dto->options,
+            url: $overrides['url'] ?? $dto->url,
+            charset: $overrides['charset'] ?? $dto->charset,
+            collation: $overrides['collation'] ?? $dto->collation,
+            prefix: $overrides['prefix'] ?? $dto->prefix,
             search_path: $overrides['search_path'] ?? $dto->search_path,
-            sslmode:     $overrides['sslmode'] ?? $dto->sslmode,
+            sslmode: $overrides['sslmode'] ?? $dto->sslmode,
         );
     }
 
