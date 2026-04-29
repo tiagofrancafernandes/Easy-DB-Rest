@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\SnippetType;
 use App\Models\Snippet;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,10 +21,12 @@ class SnippetFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => $this->faker->word() . '.sql',
-            'type' => 'sql',
+            'name' => implode('-', fake()->words(2)) . '.sql',
+            'type' => SnippetType::SQL,
             'content' => 'SELECT * FROM users;',
-            'public_content_slug' => $this->faker->slug(),
+            'public_content_slug' => fn (array $data) => strval(
+                str($data['name'] ?? '')->beforeLast('.')->slug() ?: fake()->slug()
+            ),
             'public_content_index' => false,
         ];
     }
