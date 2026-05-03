@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class);
 Route::get('/health', HealthController::class);
 
+Route::post('/inspect-request', App\Http\Controllers\Dev\InspectRequestController::class)
+    ->name('api.inspect-request');
 Route::post('/login', [AuthController::class, 'login']);
 
 // Public Snippet Route
